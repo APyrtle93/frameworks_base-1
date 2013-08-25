@@ -46,7 +46,11 @@ public class TorchTile extends QuickSettingsTile {
         mOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SlimActions.processAction(mContext, ButtonsConstants.ACTION_TORCH, false);
+
+                SlimActions.processAction(mContext, ButtonsConstants.ACTION_TORCH, false);;
+                if (isFlipTilesEnabled()) {
+                    flipTile(0);
+                }
             }
         };
 
