@@ -16,8 +16,8 @@
 
 package com.android.systemui.statusbar;
 
-import android.annotation.ChaosLab;
-import android.annotation.ChaosLab.Classification;
+import android.annotation.OSELab;
+import android.annotation.OSELab.Classification;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
@@ -99,8 +99,12 @@ import com.android.internal.util.slim.ButtonConfig;
 import com.android.internal.util.slim.DeviceUtils;
 =======
 import com.android.internal.util.ose.DeviceUtils;
+<<<<<<< HEAD
 import com.android.systemui.chaos.lab.gestureanywhere.GestureAnywhereView;
 >>>>>>> 88209e0... Gesture Anywhere: Add gesture anywhere feature into the ChaOS Lab [1/2]
+=======
+import com.android.systemui.ose.lab.gestureanywhere.GestureAnywhereView;
+>>>>>>> cec5c9b... Gesture anywhere: Collapse if expanded when screen turns off.
 import com.android.systemui.R;
 import com.android.systemui.SearchPanelView;
 import com.android.systemui.RecentsComponent;
@@ -251,7 +255,7 @@ public abstract class BaseStatusBar extends SystemUI implements
         return mNotificationData;
     }
 
-    @ChaosLab(name="GestureAnywhere", classification=Classification.NEW_FIELD)
+    @OSELab(name="GestureAnywhere", classification=Classification.NEW_FIELD)
     protected GestureAnywhereView mGestureAnywhereView;
 
     public IStatusBarService getStatusBarService() {
@@ -1770,13 +1774,13 @@ public abstract class BaseStatusBar extends SystemUI implements
         mGestureAnywhereView.setStatusBar(this);
     }
 
-    @ChaosLab(name="GestureAnywhere", classification=Classification.NEW_METHOD)
+    @OSELab(name="GestureAnywhere", classification=Classification.NEW_METHOD)
     protected void removeGestureAnywhereView() {
         if (mGestureAnywhereView != null)
             mWindowManager.removeView(mGestureAnywhereView);
     }
 
-    @ChaosLab(name="GestureAnywhere", classification=Classification.NEW_METHOD)
+    @OSELab(name="GestureAnywhere", classification=Classification.NEW_METHOD)
     protected WindowManager.LayoutParams getGestureAnywhereViewLayoutParams(int gravity) {
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                 LayoutParams.WRAP_CONTENT,
