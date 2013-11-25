@@ -51,6 +51,7 @@ import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.inputmethodservice.InputMethodService;
 import android.net.Uri;
 import android.os.Bundle;
@@ -126,6 +127,7 @@ import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.NotificationRowLayout;
 import com.android.systemui.statusbar.policy.OnSizeChangedListener;
 import com.android.systemui.statusbar.policy.RotationLockController;
+import com.android.systemui.omni.StatusHeaderMachine;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -322,6 +324,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     int mInitialTouchX;
     int mInitialTouchY;
 
+    private StatusHeaderMachine mStatusHeaderMachine;
+    private Runnable mStatusHeaderUpdater;
+
     // for disabling the status bar
     int mDisabled = 0;
     boolean mDisableHomeLongpress;
@@ -423,6 +428,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     Settings.System.NOTIFICATION_SHORTCUTS_CONFIG),
                     false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
+<<<<<<< HEAD
                     Settings.System.NOTIFICATION_SHORTCUTS_COLOR),
                     false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
@@ -479,7 +485,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.EXPANDED_DESKTOP_STATE), false, this,
                     UserHandle.USER_ALL);
-            update();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CUSTOM_HEADER), false, this);
+            updateSettings();
         }
 
         @Override
@@ -842,6 +850,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         mNotificationPanelHeader = mStatusBarWindow.findViewById(R.id.header);
 
+        mStatusHeaderMachine = new StatusHeaderMachine(mContext);
+        updateCustomHeaderStatus();
+
         mClearButton = mStatusBarWindow.findViewById(R.id.clear_all_button);
         mClearButton.setOnClickListener(mClearButtonListener);
         mClearButton.setAlpha(0f);
@@ -1133,6 +1144,57 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         updateCarrierAndWifiLabelVisibility(true);        
 
         return mStatusBarView;
+    }
+
+    private void updateCustomHeaderStatus() {
+        ContentResolver resolver = mContext.getContentResolver();
+        boolean customHeader = Settings.System.getInt(
+                resolver, Settings.System.STATUS_BAR_CUSTOM_HEADER, 0) == 1;
+
+        if (mNotificationPanelHeader == null) return;
+
+        // Setup the updating notification bar header image
+        if (customHeader) {
+            if (mStatusHeaderUpdater == null) {
+                mStatusHeaderUpdater = new Runnable() {
+                    private Drawable mPrevious = mNotificationPanelHeader.getBackground();
+
+                    public void run() {
+                        Drawable next = mStatusHeaderMachine.getCurrent();
+                        if (next != mPrevious) {
+                            Log.i(TAG, "Updating status bar header background");
+
+                            setNotificationPanelHeaderBackground(next);
+                            mPrevious = next;
+                        }
+
+                        // Check every hour. As postDelayed isn't holding a wakelock, it will basically
+                        // only check when the CPU is on. Thus, not consuming battery overnight.
+                        mHandler.postDelayed(this, 1000 * 3600);
+                    }
+                };
+            }
+
+            // Cancel any eventual ongoing statusHeaderUpdater, and start a clean one
+            mHandler.removeCallbacks(mStatusHeaderUpdater);
+            mHandler.post(mStatusHeaderUpdater);
+        } else {
+            if (mStatusHeaderUpdater != null) {
+                mHandler.removeCallbacks(mStatusHeaderUpdater);
+            }
+            setNotificationPanelHeaderBackground(mStatusHeaderMachine.getDefault());
+        }
+    }
+
+    private void setNotificationPanelHeaderBackground(final Drawable dw) {
+        Drawable[] arrayDrawable = new Drawable[2];
+        arrayDrawable[0] = mNotificationPanelHeader.getBackground();
+        arrayDrawable[1] = dw;
+
+        TransitionDrawable transitionDrawable = new TransitionDrawable(arrayDrawable);
+        transitionDrawable.setCrossFadeEnabled(true);
+        mNotificationPanelHeader.setBackgroundDrawable(transitionDrawable);
+        transitionDrawable.startTransition(1000);
     }
 
     @Override
@@ -3904,6 +3966,86 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             if (icon !=null && icon.getBackground() != null) {
                 icon.getBackground().setAlpha(alpha);
             }
+
+	updateCustomHeaderStatus();
+
+        }
+
+        public void startObserving() {
+            final ContentResolver cr = mContext.getContentResolver();
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QUICK_SETTINGS_TILES),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QUICK_TILES_PER_ROW),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QUICK_TILES_PER_ROW_DUPLICATE_LANDSCAPE),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_ALARM),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_BUGREPORT),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_DOCK_BATTERY),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_IME),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_USBTETHER),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_WIFI),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QS_QUICK_ACCESS),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QS_QUICK_ACCESS_LINKED),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QUICK_SETTINGS_RIBBON_TILES),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.APP_SIDEBAR_POSITION),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NOTIFICATION_BACKGROUND),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NOTIFICATION_BACKGROUND_LANDSCAPE),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NOTIFICATION_BACKGROUND_ALPHA),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QUICK_TILES_PER_ROW),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QUICK_TILES_PER_ROW_DUPLICATE_LANDSCAPE),
+                    false, this, UserHandle.USER_ALL);
+
+>>>>>>> 580ba9d... [1/2] SystemUI: Add time-context headers to the notification header
         }
     }
 
