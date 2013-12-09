@@ -227,6 +227,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     Point mCurrentDisplaySize = new Point();
     int mCurrUiThemeMode;
     int mCurrOrientation;
+    int mCurrentDensity;
     private float mHeadsUpVerticalOffset;
     private int[] mPilePosition = new int[2];
 
@@ -4124,6 +4125,14 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         if (uiThemeMode != mCurrUiThemeMode) {
             mCurrUiThemeMode = uiThemeMode;
             recreateStatusBar(false);
+        }
+
+        // detect density change
+        int density = res.getConfiguration().densityDpi;
+        if (density != mCurrentDensity) {
+            mCurrentDensity = density;
+            recreateStatusBar(true);
+            recreatePie(isPieEnabled());
             return;
         }
 
