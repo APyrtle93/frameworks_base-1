@@ -1131,15 +1131,15 @@ public final class Settings {
         }
 
         /**
-	 * Need to AOKP Custom Systems Animations
-	 *
-	 * Look up a boolean in the database.
-	 * @param resolver to access the database with
-	 * @param name to look up in the table
-	 * @param def Value to return if the setting is not defined.
-	 * @return The setting's current value, or 'def' if it is not defined
-	 * or not a valid boolean.
-	 */
+     * Need to AOKP Custom Systems Animations
+     *
+     * Look up a boolean in the database.
+     * @param resolver to access the database with
+     * @param name to look up in the table
+     * @param def Value to return if the setting is not defined.
+     * @return The setting's current value, or 'def' if it is not defined
+     * or not a valid boolean.
+     */
         public static boolean getBoolean(ContentResolver cr, String name, boolean def) {
             String v = getString(cr, name);
             try {
@@ -1151,21 +1151,21 @@ public final class Settings {
                 return def;
             }
         }
-	/**
-	 * Need to AOKP Custom Systems Animations
-	 *
-	 * Convenience function for updating a single settings value as a
-	 * boolean. This will either create a new entry in the table if the
-	 * given name does not exist, or modify the value of the existing row
-	 * with that name. Note that internally setting values are always
-	 * stored as strings, so this function converts the given value to a
-	 * string before storing it.
-	 *
-	 * @param cr The ContentResolver to access.
-	 * @param name The name of the setting to modify.
-	 * @param value The new value for the setting.
-	 * @return true if the value was set, false on database errors
-	 */
+    /**
+     * Need to AOKP Custom Systems Animations
+     *
+     * Convenience function for updating a single settings value as a
+     * boolean. This will either create a new entry in the table if the
+     * given name does not exist, or modify the value of the existing row
+     * with that name. Note that internally setting values are always
+     * stored as strings, so this function converts the given value to a
+     * string before storing it.
+     *
+     * @param cr The ContentResolver to access.
+     * @param name The name of the setting to modify.
+     * @param value The new value for the setting.
+     * @return true if the value was set, false on database errors
+     */
         public static boolean putBoolean(ContentResolver cr, String name, boolean value) {
             return putString(cr, name, value ? "1" : "0");
         }
@@ -2344,8 +2344,6 @@ public final class Settings {
         public static final String ACCELEROMETER_ROTATION = "accelerometer_rotation";
 
         /**
-<<<<<<< HEAD
-=======
          * Control whether the accelerometer will be used to change lockscreen
          * orientation.  If 0, it will not be used; if 1, it will be used by default.
          * @hide
@@ -2353,7 +2351,6 @@ public final class Settings {
         public static final String LOCKSCREEN_ROTATION = "lockscreen_rotation";
 
         /**
->>>>>>> 6fa77d9... Lockscreen transparency, blur and rotation
          * Control the type of rotation which can be performed using the accelerometer
          * if ACCELEROMETER_ROTATION is enabled.
          * Value is a bitwise combination of
@@ -2821,7 +2818,60 @@ public final class Settings {
         public static final String STATUSBAR_CLOCK_STYLE = "statusbar_clock_style";
 
         /**
-         * Setting for clock color
+         * Enables/disables lockscreen notifications
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS = "lockscreen_notifications";
+
+        /**
+         * Turn screen on when device is pulled out of pocket
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_POCKET_MODE = "lockscreen_notifications_pocket_mode";
+
+        /**
+         * Turn screen on when pulled out of pocket even if no notifications are pending
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_SHOW_ALWAYS = "lockscreen_notifications_show_always";
+
+        /**
+         * Hide low priority notifications such as google now weather notifications from lockscreen notifications
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_HIDE_LOW_PRIORITY = "lockscreen_notifications_hide_low_priority";
+
+        /**
+         * Hide non clearable notifications from lockscreen notifications
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_HIDE_NON_CLEARABLE = "lockscreen_notifications_hide_non_clearable";
+
+        /**
+         * Allows dismissing even non-clearable notifications from lockscreen notifications.
+         * Of course, this doesn't really dismiss them, they're just not shown on lockscreen anymore.
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_DISMISS_ALL = "lockscreen_notifications_dismiss_all";
+
+        /**
+         * Toggle between extended and normal view by longpressing the notification
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_EXPANDED_VIEW = "lockscreen_notifications_expanded_view";
+
+        /**
+         * Show lockscreen notifications extended when possible
+         * @hide
+         */
+        public static final String LOCKSCREEN_NOTIFICATIONS_FORCE_EXPANDED_VIEW = "lockscreen_notifications_force_expanded_view";
+
+        /**
+         * MediaScanner behavior on boot.
+         * 0 = enabled
+         * 1 = ask (notification)
+         * 2 = disabled
+>>>>>>> 3487cda... Lockscreen Notifications [1/2]
          * @hide
          */
         public static final String STATUSBAR_CLOCK_COLOR = "statusbar_clock_color";
@@ -2871,6 +2921,13 @@ public final class Settings {
          */
         public static final String POWER_MENU_ICON_COLOR = "power_menu_icon_color";
 
+		/**
+         * Whether to show the network status in the status bar
+         *
+   		 * @hide
+         */
+        public static final String STATUS_BAR_NETWORK_STATS = "status_bar_network_stats";
+
         /**
          * Icon color mode for advanced power menu
          *
@@ -2879,12 +2936,13 @@ public final class Settings {
         public static final String POWER_MENU_ICON_COLOR_MODE = "power_menu_icon_color_mode";
 
         /**
-         * Expanded desktop on/off state
+         *
+		 * Expanded desktop on/off state
          * @hide
          */
         public static final String EXPANDED_DESKTOP_STATE = "expanded_desktop_state";
 
-	/**
+	    /**
          * HALO, should default to 0 (no, do not show)
          * @hide
          */
@@ -2947,6 +3005,21 @@ public final class Settings {
 
         /**
          * Volume rocker wake
+=======
+         * Network stats Color style
+         * @hide
+         */
+        public static final String STATUS_BAR_NETWORK_COLOR = "status_bar_network_usage_color";
+
+        /**
+         * Network stats hide if there's no traffic
+         * @hide
+         */
+        public static final String STATUS_BAR_NETWORK_HIDE = "status_bar_network_hide";
+
+        /**
+         * Whether to wake the screen with the volume keys, the value is boolean.
+>>>>>>> 3487cda... Lockscreen Notifications [1/2]
          * @hide
          */
         public static final String VOLUME_WAKE_SCREEN = "volume_wake_screen";
@@ -3357,6 +3430,7 @@ public final class Settings {
 
         /**
          * Whether to use the custom quick unlock screen control
+		 *
          * @hide
          */
         public static final String LOCKSCREEN_QUICK_UNLOCK_CONTROL =
@@ -3395,12 +3469,35 @@ public final class Settings {
          */
         public static final String MENU_UNLOCK_SCREEN = "menu_unlock_screen";
 
-       /**
-         * Disable all toolbox options. Allows user to achieve a more "stock"
-         * look and feel of android.
-         * @hide
-         */
-        public static final String DISABLE_TOOLBOX = "disable_toolbox";
+        /**
+          * Volume keys control cursor in text fields (default is 0)
+          * 0 - Disabled
+          * 1 - Volume up/down moves cursor left/right
+          * 2 - Volume up/down moves cursor right/left
+          * @hide
+          */
+         public static final String VOLUME_KEY_CURSOR_CONTROL = "volume_key_cursor_control";
+
+         /**
+          * Custom System Animations
+          *
+          * @hide
+          */
+         public static final String[] ACTIVITY_ANIMATION_CONTROLS = new String[] {
+                "activity_open",
+                "activity_close",
+                "task_open",
+                "task_close",
+                "task_to_front",
+                "task_to_back",
+                "wallpaper_open",
+                "wallpaper_close",
+                "wallpaper_intra_open",
+                "wallpaper_intra_close",
+         };
+         public static final String ANIMATION_CONTROLS_DURATION = "animation_controls_duration";
+         public static final String ANIMATION_CONTROLS_NO_OVERRIDE = "animation_controls_no_override";
+>>>>>>> 3487cda... Lockscreen Notifications [1/2]
 
         /**
          * Automatic keyboard rotation timeout.  0 to disable completely.

@@ -793,8 +793,15 @@ public class NotificationManagerService extends INotificationManager.Stub
         for (NotificationListenerInfo info : toRemove) {
             final ComponentName component = info.component;
             final int oldUser = info.userid;
+<<<<<<< HEAD
             Slog.v(TAG, "disabling notification listener for user " + oldUser + ": " + component);
             if (!component.getPackageName().equals("HaloComponent")) unregisterListenerService(component, info.userid);
+=======
+            if (!info.isSystem) {
+                Slog.v(TAG, "disabling notification listener for user " + oldUser + ": " + component);
+                unregisterListenerService(component, info.userid);
+            }
+>>>>>>> 3487cda... Lockscreen Notifications [1/2]
         }
 
         final int N = toAdd.size();
@@ -816,6 +823,10 @@ public class NotificationManagerService extends INotificationManager.Stub
     public void registerListener(final INotificationListener listener,
             final ComponentName component, final int userid) {
         if (!component.getPackageName().equals("HaloComponent")) checkCallerIsSystem();
+        final int permission = mContext.checkCallingPermission(
+                android.Manifest.permission.SYSTEM_NOTIFICATION_LISTENER);
+        if (permission == PackageManager.PERMISSION_DENIED)
+            checkCallerIsSystem();
 
         synchronized (mNotificationList) {
             try {
