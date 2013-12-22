@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.graphics.Canvas;
+import android.widget.Toast;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.FloatMath;
@@ -53,15 +54,16 @@ public class RecentsVerticalScrollView extends ScrollView
     private HashSet<View> mRecycledViews;
     private int mNumItemsInOneScreenful;
     private Runnable mOnScrollListener;
+    private static Context recentsContext;
 
     public RecentsVerticalScrollView(Context context, AttributeSet attrs) {
         super(context, attrs, 0);
         float densityScale = getResources().getDisplayMetrics().density;
         float pagingTouchSlop = ViewConfiguration.get(mContext).getScaledPagingTouchSlop();
         mSwipeHelper = new SwipeHelper(SwipeHelper.X, this, densityScale, pagingTouchSlop);
-
         mFadedEdgeDrawHelper = FadedEdgeDrawHelper.create(context, attrs, this, true);
         mRecycledViews = new HashSet<View>();
+        recentsContext = context;
     }
 
     public void setMinSwipeAlpha(float minAlpha) {
@@ -183,6 +185,12 @@ public class RecentsVerticalScrollView extends ScrollView
     @Override
     public void removeViewInLayout(final View view) {
         dismissChild(view);
+    }
+
+    @Override
+    public void removeAllViewsInLayout() {
+        CharSequence rickroll = "Bad habits die hard, no?";
+        Toast.makeText(RecentsVerticalScrollView.recentsContext, rickroll, Toast.LENGTH_SHORT).show();
     }
 
     public boolean onInterceptTouchEvent(MotionEvent ev) {
