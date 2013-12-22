@@ -3173,7 +3173,19 @@ public final class Settings {
         public static final String BATTERY_AROUND_LOCKSCREEN_RING = "battery_around_lockscreen_ring";
 
         /**
-   		 * Volume music controls
+         * show "clear all recents" button
+         *  @hide
+         */
+        public static final String SHOW_CLEAR_RECENTS_BUTTON = "clear_recents_button";
+
+        /**
+         * location of the "clear all recents" button
+         * @hide
+         */
+        public static final String CLEAR_RECENTS_BUTTON_LOCATION = "clear_recents_button_location";
+
+        /**
+         * Volume music controls
          * @hide
          */
         public static final String VOLUME_MUSIC_CONTROLS = "volume_music_controls";
