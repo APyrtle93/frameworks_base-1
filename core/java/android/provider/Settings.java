@@ -3395,33 +3395,12 @@ public final class Settings {
          */
         public static final String MENU_UNLOCK_SCREEN = "menu_unlock_screen";
 
-        /**
-          * Volume keys control cursor in text fields (default is 0)
-          * 0 - Disabled
-          * 1 - Volume up/down moves cursor left/right
-          * 2 - Volume up/down moves cursor right/left
-          * @hide
-          */
-         public static final String VOLUME_KEY_CURSOR_CONTROL = "volume_key_cursor_control";
-
        /**
          * Disable all toolbox options. Allows user to achieve a more "stock"
          * look and feel of android.
          * @hide
          */
         public static final String DISABLE_TOOLBOX = "disable_toolbox";
-
-        /**
-         * Override and forcefully disable the fullscreen keyboard
-         * @hide
-         */
-        public static final String DISABLE_FULLSCREEN_KEYBOARD = "disable_fullscreen_keyboard";
-
-        /**
-         * Whether to show the IME switcher in the status bar
-         * @hide
-         */
-        public static final String STATUS_BAR_IME_SWITCHER = "status_bar_ime_switcher";
 
         /**
          * Automatic keyboard rotation timeout.  0 to disable completely.
