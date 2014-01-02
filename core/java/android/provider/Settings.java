@@ -3471,36 +3471,8 @@ public final class Settings {
         public static final String MENU_UNLOCK_SCREEN = "menu_unlock_screen";
 
         /**
-          * Volume keys control cursor in text fields (default is 0)
-          * 0 - Disabled
-          * 1 - Volume up/down moves cursor left/right
-          * 2 - Volume up/down moves cursor right/left
-          * @hide
-          */
-         public static final String VOLUME_KEY_CURSOR_CONTROL = "volume_key_cursor_control";
-
-         /**
-          * Custom System Animations
-          *
-          * @hide
-          */
-         public static final String[] ACTIVITY_ANIMATION_CONTROLS = new String[] {
-                "activity_open",
-                "activity_close",
-                "task_open",
-                "task_close",
-                "task_to_front",
-                "task_to_back",
-                "wallpaper_open",
-                "wallpaper_close",
-                "wallpaper_intra_open",
-                "wallpaper_intra_close",
-         };
-         public static final String ANIMATION_CONTROLS_DURATION = "animation_controls_duration";
-         public static final String ANIMATION_CONTROLS_NO_OVERRIDE = "animation_controls_no_override";
-
-        /**
          * Automatic keyboard rotation timeout.  0 to disable completely.
+         * 
          * @hide
          */
         public static final String ENABLE_STYLUS_GESTURES = "enable_stylus_gestures";
