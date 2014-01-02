@@ -3465,6 +3465,7 @@ public final class Settings {
 
         /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
+         *
          * @hide
          */
         public static final String MENU_UNLOCK_SCREEN = "menu_unlock_screen";
@@ -3497,7 +3498,6 @@ public final class Settings {
          };
          public static final String ANIMATION_CONTROLS_DURATION = "animation_controls_duration";
          public static final String ANIMATION_CONTROLS_NO_OVERRIDE = "animation_controls_no_override";
->>>>>>> 3487cda... Lockscreen Notifications [1/2]
 
         /**
          * Automatic keyboard rotation timeout.  0 to disable completely.
