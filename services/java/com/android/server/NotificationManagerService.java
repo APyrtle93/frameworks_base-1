@@ -52,6 +52,7 @@ import android.media.IAudioService;
 import android.media.IRingtonePlayer;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -79,6 +80,7 @@ import android.widget.Toast;
 import com.android.internal.R;
 
 import com.android.internal.notification.NotificationScorer;
+import com.android.internal.util.slim.QuietHoursHelper;
 import com.android.internal.util.FastXmlSerializer;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -185,7 +187,8 @@ public class NotificationManagerService extends INotificationManager.Stub
 
     private ArrayList<NotificationRecord> mLights = new ArrayList<NotificationRecord>();
     private NotificationRecord mLedNotification;
-
+    
+    private HashMap<String, Long> mAnnoyingNotifications = new HashMap<String, Long>();
     private boolean mQuietHoursEnabled = false;
     // Minutes from midnight when quiet hours begin.
     private int mQuietHoursStart = 0;
