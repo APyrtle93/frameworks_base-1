@@ -153,13 +153,10 @@ public class KeyguardViewManager {
     	if(!mBlurEnabled) {
     		mCustomBackground = null;
     	}
-        mSeeThrough = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.LOCKSCREEN_SEE_THROUGH, 0) == 1;
         mBlurRadius = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.LOCKSCREEN_BLUR_RADIUS, mBlurRadius);
         mLockscreenNotifications = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.LOCKSCREEN_NOTIFICATIONS, mLockscreenNotifications ? 1 : 0) == 1;
-        if(!mSeeThrough) mCustomBackground = null;
         if(mLockscreenNotifications && mNotificationViewManager == null) {
             mNotificationViewManager = new NotificationViewManager(mContext, this);
         } else if(!mLockscreenNotifications && mNotificationViewManager != null) {
