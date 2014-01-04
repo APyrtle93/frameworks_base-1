@@ -3005,7 +3005,6 @@ public final class Settings {
 
         /**
          * Volume rocker wake
-=======
          * Network stats Color style
          * @hide
          */
@@ -3019,13 +3018,18 @@ public final class Settings {
 
         /**
          * Whether to wake the screen with the volume keys, the value is boolean.
->>>>>>> 3487cda... Lockscreen Notifications [1/2]
          * @hide
          */
         public static final String VOLUME_WAKE_SCREEN = "volume_wake_screen";
 
         /**
-         * Volume music controls
+         * Whether or not to show circle battery around the lockscreen ring
+         * @hide
+         */
+        public static final String BATTERY_AROUND_LOCKSCREEN_RING = "battery_around_lockscreen_ring";
+
+        /**
+   		 * Volume music controls
          * @hide
          */
         public static final String VOLUME_MUSIC_CONTROLS = "volume_music_controls";
