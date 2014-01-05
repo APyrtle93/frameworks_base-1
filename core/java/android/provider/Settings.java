@@ -2867,7 +2867,14 @@ public final class Settings {
         public static final String LOCKSCREEN_NOTIFICATIONS_HIDE_LOW_PRIORITY = "lockscreen_notifications_hide_low_priority";
 
         /**
-         * Hide non clearable notifications from lockscreen notifications
+         * Settings for clock font style
+         * @hide
+         */
+        public static final String STATUSBAR_CLOCK_FONT_STYLE = "statusbar_clock_font_style";
+
+        /**
+         *
+		 * Hide non clearable notifications from lockscreen notifications
          * @hide
          */
         public static final String LOCKSCREEN_NOTIFICATIONS_HIDE_NON_CLEARABLE = "lockscreen_notifications_hide_non_clearable";
@@ -2896,7 +2903,6 @@ public final class Settings {
          * 0 = enabled
          * 1 = ask (notification)
          * 2 = disabled
->>>>>>> 3487cda... Lockscreen Notifications [1/2]
          * @hide
          */
         public static final String STATUSBAR_CLOCK_COLOR = "statusbar_clock_color";
@@ -4007,6 +4013,7 @@ public final class Settings {
          * @hide
          */
         public static final String KEY_MENU_LONG_PRESS_ACTION = "key_menu_long_press_action";
+
 
         /**
          * Action to perform when the menu key is double tapped. (default: ACTION_NULL)
