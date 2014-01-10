@@ -3462,6 +3462,13 @@ public final class Settings {
 
         /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
+         * Whether incomming call UI stays in background
+         *
+         * @hide
+         */
+        public static final String CALL_UI_IN_BACKGROUND = "call_ui_in_background";
+
+        /**
          * Enable Stylus Gestures
          *
          * @hide
