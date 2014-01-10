@@ -3441,13 +3441,6 @@ public final class Settings {
                 "lockscreen_quick_unlock_control";
 
         /**
-         * Should the non-intrsive incall ui be used
-         *
-         * @hide
-         */
-        public static final String NON_INTRUSIVE_INCALL = "non_intrusive_incall";
-
-        /**
          * Custom System Animations
          *
          * @hide
@@ -3469,6 +3462,7 @@ public final class Settings {
 
         /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
+         * Enable Stylus Gestures
          *
          * @hide
          */
