@@ -95,4 +95,9 @@
   <!-- Statusbar double tap gesture -->
   <java-symbol type="bool" name="config_disableDoubleTapSleepGesture" />
 
+  <!-- Advanced Reboot -->
+  <java-symbol type="array" name="shutdown_reboot_options" />
+  <java-symbol type="array" name="shutdown_reboot_actions" />
+  <java-symbol type="string" name="reboot_system" />
+
 </resources>
