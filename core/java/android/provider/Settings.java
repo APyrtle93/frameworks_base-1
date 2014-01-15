@@ -3010,6 +3010,12 @@ public final class Settings {
         public static final String HALO_UNLOCK_PING = "halo_unlock_ping";
 
         /**
+         * Whether national data roaming should be used.
+         * @hide
+         */
+        public static final String MVNO_ROAMING = "mvno_roaming";
+
+        /**
          * Volume rocker wake
          * Network stats Color style
          * @hide
