@@ -940,7 +940,6 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
     private void updateView() {
         if (mRamUsageBar != null) {
             mRamUsageBar.setVisibility(ramBarEnabled ? View.VISIBLE : View.GONE);
-            }
         }
         if (mRamUsageBarShadow != null) {
             mRamUsageBarShadow.setVisibility(ramBarEnabled ? View.VISIBLE : View.GONE);
