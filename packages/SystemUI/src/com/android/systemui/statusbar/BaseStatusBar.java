@@ -169,6 +169,9 @@ public abstract class BaseStatusBar extends SystemUI implements
     public boolean mHaloTaskerActive = false;
     protected ImageView mHaloButton;
     protected boolean mHaloButtonVisible = true;
+	
+    // left-hand icons 
+    public LinearLayout mStatusIcons;
 
     // UI-specific methods
 
@@ -220,7 +223,27 @@ public abstract class BaseStatusBar extends SystemUI implements
         }
     };
 
-    private RemoteViews.OnClickHandler mOnClickHandler = new RemoteViews.OnClickHandler() {
+    private class SettingsObserver extends ContentObserver {
+        public SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        public void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            update();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            update();
+        }
+
+        private void update() {
+            ContentResolver resolver = mContext.getContentResolver();
+        }
+    };
+    
+	private RemoteViews.OnClickHandler mOnClickHandler = new RemoteViews.OnClickHandler() {
         @Override
         public boolean onClickHandler(View view, PendingIntent pendingIntent, Intent fillInIntent) {
             if (DEBUG) {
@@ -372,7 +395,27 @@ public abstract class BaseStatusBar extends SystemUI implements
         updateHalo();
     }
 
-    public void setHaloTaskerActive(boolean haloTaskerActive, boolean updateNotificationIcons) {
+    private void updateIconColor() {
+        ContentResolver resolver = mContext.getContentResolver();
+
+        boolean mCustomColor = Settings.System.getIntForUser(resolver,
+                Settings.System.CUSTOM_SYSTEM_ICON_COLOR, 0, UserHandle.USER_CURRENT) == 1;
+        int systemColor = Settings.System.getIntForUser(resolver,
+                Settings.System.SYSTEM_ICON_COLOR, -2, UserHandle.USER_CURRENT);
+
+        if (mStatusIcons != null) {
+            for(int i = 0; i < mStatusIcons.getChildCount(); i++) {
+                Drawable iconDrawable = ((ImageView)mStatusIcons.getChildAt(i)).getDrawable();
+                if (mCustomColor) {
+                    iconDrawable.setColorFilter(systemColor, PorterDuff.Mode.SRC_ATOP);
+                } else {
+                    iconDrawable.clearColorFilter();
+                }
+            }
+        }
+    }
+    
+	public void setHaloTaskerActive(boolean haloTaskerActive, boolean updateNotificationIcons) {
         mHaloTaskerActive = haloTaskerActive;
         if (updateNotificationIcons) {
             updateNotificationIcons();

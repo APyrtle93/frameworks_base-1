@@ -94,6 +94,9 @@ public class BatteryCircleMeterView extends ImageView {
     private int mCircleTextColor;
     private int mCircleTextChargingColor;
     private int mCircleAnimSpeed;
+	
+    private boolean mCustomColor;
+    private int systemColor;
 
     // runnable to invalidate view via mHandler.postDelayed() call
     private final Runnable mInvalidate = new Runnable() {
@@ -251,7 +254,11 @@ public class BatteryCircleMeterView extends ImageView {
         // always skip percentage when 100, so layout doesnt break
         if (level < 100 && mPercentage) {
             if (level <= 14) {
-                mPaintFont.setColor(mPaintRed.getColor());
+                if (mCustomColor) {
+                    mPaintFont.setColor(systemColor);
+                } else {
+                    mPaintFont.setColor(mCircleTextColor);
+                }                
             } else if (mIsCharging) {
                 mPaintFont.setColor(mCircleTextChargingColor);
             } else {
@@ -297,6 +304,10 @@ public class BatteryCircleMeterView extends ImageView {
         mCircleAnimSpeed = Settings.System.getIntForUser(resolver,
                 Settings.System.STATUS_BAR_CIRCLE_BATTERY_ANIMATIONSPEED, 3,
                 UserHandle.USER_CURRENT);
+        mCustomColor = Settings.System.getIntForUser(resolver,
+                Settings.System.CUSTOM_SYSTEM_ICON_COLOR, 0, UserHandle.USER_CURRENT) == 1;
+        systemColor = Settings.System.getIntForUser(resolver,
+                Settings.System.SYSTEM_ICON_COLOR, -2, UserHandle.USER_CURRENT);				
 
         int defaultColor = res.getColor(com.android.systemui.R.color.batterymeter_charge_color);
 
@@ -353,7 +364,11 @@ public class BatteryCircleMeterView extends ImageView {
         mPaintSystem = new Paint(mPaintFont);
         mPaintRed = new Paint(mPaintFont);
 
-        mPaintSystem.setColor(mCircleColor);
+        if (mCustomColor) {
+            mPaintSystem.setColor(systemColor);
+        } else {
+            mPaintSystem.setColor(mCircleColor);
+        }        
         // could not find the darker definition anywhere in resources
         // do not want to use static 0x404040 color value. would break theming.
         mPaintGray.setColor(res.getColor(R.color.darker_gray));
