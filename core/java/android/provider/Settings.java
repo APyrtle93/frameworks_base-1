@@ -2883,7 +2883,6 @@ public final class Settings {
          * 0 = enabled
          * 1 = ask (notification)
          * 2 = disabled
->>>>>>> 3487cda... Lockscreen Notifications [1/2]
          * @hide
          */
         public static final String STATUSBAR_CLOCK_COLOR = "statusbar_clock_color";
@@ -3308,6 +3307,12 @@ public final class Settings {
         public static final String LOCKSCREEN_NOTIFICATIONS_PRIVACY_MODE = "lockscreen_notifications_privacy_mode";
 
         /**
+         * Force dual panel for settings
+         * @hide
+         */
+        public static final String FORCE_DUAL_PANEL = "force_dual_panel"; 
+
+        /**		
          * MediaScanner behavior on boot.
          * 0 = enabled
          * 1 = ask (notification)
