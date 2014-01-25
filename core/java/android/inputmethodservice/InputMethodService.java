@@ -1431,7 +1431,6 @@ public class InputMethodService extends AbstractInputMethodService {
         }
         return true;
     }
-	
     
     public void showWindow(boolean showInput) {
         if (DEBUG) Log.v(TAG, "Showing window: showInput=" + showInput
