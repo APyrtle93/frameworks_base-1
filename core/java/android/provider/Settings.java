@@ -2617,6 +2617,12 @@ public final class Settings {
          */
         public static final String LOCKSCREEN_SOUNDS_ENABLED = "lockscreen_sounds_enabled";
 
+        /**  
+         * Allows to show the background activity back the lockscreen
+         * @hide
+         */
+        public static final String LOCKSCREEN_SEE_THROUGH = "lockscreen_see_through";
+
         /**
          * Whether the lockscreen should be completely disabled.
          * @hide
@@ -3587,6 +3593,15 @@ public final class Settings {
 
         /**
          * down Swipe Action
+         * Ram Usage Bar system mem color
+         * Allows blurring the lockscreen background
+         * @hide
+         */
+        public static final String LOCKSCREEN_BLUR_BEHIND = "lockscreen_blur_behind";
+        public static final String LOCKSCREEN_BLUR_RADIUS = "lockscreen_blur_radius";
+
+        /**
+         * Should call status sounds be player
          *
          * @hide
          */
