@@ -364,8 +364,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private StatusHeaderMachine mStatusHeaderMachine;
     private Runnable mStatusHeaderUpdater;
 
-    private boolean mRecreating = false;
-
     // for disabling the status bar
     int mDisabled = 0;
     boolean mDisableHomeLongpress;
