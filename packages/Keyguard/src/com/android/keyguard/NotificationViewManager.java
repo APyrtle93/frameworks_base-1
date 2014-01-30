@@ -36,6 +36,12 @@ import android.service.notification.INotificationListener;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.android.internal.util.mahdi.QuietHoursHelper;
+
 public class NotificationViewManager {
     private final static String TAG = "Keyguard:NotificationViewManager";
 
@@ -141,8 +147,9 @@ public class NotificationViewManager {
             if (event.sensor.equals(ProximitySensor)) {
                 if (!mIsScreenOn) {
                     if (event.values[0] >= ProximitySensor.getMaximumRange()) {
-                        if (config.pocketMode && mTimeCovered != 0 && (config.showAlways || mHostView.getNotificationCount() > 0) &&
-                                System.currentTimeMillis() - mTimeCovered > MIN_TIME_COVERED) {
+                        if (config.pocketMode && mTimeCovered != 0 && (config.showAlways || mHostView.getNotificationCount() > 0)
+                                && System.currentTimeMillis() - mTimeCovered > MIN_TIME_COVERED
+                                && !QuietHoursHelper.inQuietHours(mContext, Settings.System.QUIET_HOURS_DIM)) {
                             wakeDevice();
                             mWokenByPocketMode = true;
                             mHostView.showAllNotifications();
@@ -166,7 +173,7 @@ public class NotificationViewManager {
         @Override
         public void onNotificationPosted(final StatusBarNotification sbn) {
             boolean screenOffAndNotCovered = !mIsScreenOn && mTimeCovered == 0;
-			boolean showNotification = !mHostView.containsNotification(sbn) || mHostView.getNotification(sbn).when != sbn.getNotification().when;
+            boolean showNotification = !mHostView.containsNotification(sbn) || mHostView.getNotification(sbn).when != sbn.getNotification().when;
             if (mHostView.addNotification(sbn, (screenOffAndNotCovered || mIsScreenOn) && showNotification,
                         config.forceExpandedView) && config.wakeOnNotification && screenOffAndNotCovered
                         && showNotification && mTimeCovered == 0) {
@@ -247,9 +254,7 @@ public class NotificationViewManager {
     }
 
     private void wakeDevice() {
-        if (mTimeCovered == 0) {
-            mPowerManager.wakeUp(SystemClock.uptimeMillis());
-        }
+        mPowerManager.wakeUp(SystemClock.uptimeMillis());
     }
 
     public void onScreenTurnedOff() {
@@ -264,7 +269,7 @@ public class NotificationViewManager {
     public void onScreenTurnedOn() {
         mIsScreenOn = true;
         mTimeCovered = 0;
-        if (mHostView != null) mHostView.bringToFront();
+        mHostView.bringToFront();
     }
 
     public void onDismiss() {

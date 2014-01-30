@@ -3454,6 +3454,19 @@ public final class Settings {
 
         /**
          * Stores the value for notification shortcuts icon color
+         * HALO message box animation?, should default to 2 (flip animation)
+         * @hide
+         */
+        public static final String HALO_MSGBOX_ANIMATION = "halo_msgbox_animation";
+
+        /**
+         * HALO unlock ping?, should default to 0 (no, do not ping on unlock)
+         * @hide
+         */
+        public static final String HALO_UNLOCK_PING = "halo_unlock_ping";
+
+        /**
+         * Enables/disables lockscreen notifications
          * @hide
          */
         public static final String NOTIFICATION_SHORTCUTS_COLOR = "notification_shortcuts_color";
@@ -3580,6 +3593,7 @@ public final class Settings {
         /**
          * Left Swipe Action
          *
+         * Whether or not to launch default music player when headset is connected
          * @hide
          */
         public static final String GESTURES_LEFT_SWIPE = "gestures_left_swipe";
