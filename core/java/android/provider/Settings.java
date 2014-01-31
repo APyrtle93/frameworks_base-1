@@ -3453,6 +3453,19 @@ public final class Settings {
         public static final String NOTIFICATION_SHORTCUTS_CONFIG = "notification_shortcuts_config";
 
         /**
+         * Stores the value for notification shortcuts icon color
+         * HALO message box animation?, should default to 2 (flip animation)
+         * @hide
+         */
+        public static final String HALO_MSGBOX_ANIMATION = "halo_msgbox_animation";
+
+        /**
+         * HALO unlock ping?, should default to 0 (no, do not ping on unlock)
+         * @hide
+         */
+        public static final String HALO_UNLOCK_PING = "halo_unlock_ping";
+
+        /**
          * Enables/disables lockscreen notifications
          * @hide
          */
