@@ -194,18 +194,13 @@ public class RecentsVerticalScrollView extends ScrollView
             final View child = mLinearLayout.getChildAt(i);
             postDelayed(new Runnable() {
                 @Override
-                public void run() 
+                public void run() {
                     dismissChild(child);
-               }
+                }
             }, i * 150);
         }
     }
 
-    /*
-    @Override
-    public void removeAllViewsInLayout() {
-	
-    */
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         if (DEBUG) Log.v(TAG, "onInterceptTouchEvent()");
         return mSwipeHelper.onInterceptTouchEvent(ev) ||
