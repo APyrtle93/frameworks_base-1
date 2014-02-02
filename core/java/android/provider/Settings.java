@@ -2940,24 +2940,67 @@ public final class Settings {
          */
         public static final String POWER_MENU_ICON_COLOR = "power_menu_icon_color";
 
+		/**
+         * Whether to show the network status in the status bar
+         *
+   		 * @hide
+         */
+        public static final String STATUS_BAR_NETWORK_STATS = "status_bar_network_stats";
+
         /**
-         * A list of packages to exclude from being displayed as lockscreen notifications.
-         * This should be a string of packages separated by |
+         * Icon color mode for advanced power menu
+         *
          * @hide
          */
         public static final String POWER_MENU_ICON_COLOR_MODE = "power_menu_icon_color_mode";
 
         /**
-         * Set a custom notification background color
+         *
+		 * Expanded desktop on/off state
          * @hide
          */
-        public static final String LOCKSCREEN_NOTIFICATIONS_COLOR = "lockscreen_notifications_color";
+        public static final String EXPANDED_DESKTOP_STATE = "expanded_desktop_state";
+
+	    /**
+         * HALO enabled, should default to 0 (HALO is disabled)
+         * @hide
+         */
+        public static final String HALO_ENABLED = "halo_enabled";
+
+        /**		
+         * HALO, should default to 0 (no, do not show)
+         * @hide
+         */
+        public static final String HALO_ACTIVE = "halo_active";
+  
+        /**
+         * HALO reversed?, should default to 1 (yes, reverse)
+         * @hide
+         */
+        public static final String HALO_REVERSED = "halo_reversed";
 
         /**
-         * MediaScanner behavior on boot.
-         * 0 = enabled
-         * 1 = ask (notification)
-         * 2 = disabled
+         * HALO hide?, should default to 0 (no, do not hide)
+         * @hide
+         */
+        public static final String HALO_HIDE = "halo_hide";
+
+        /**
+         * HALO pause activities?, defaults to 0 (no, do not pause) on devices which isLargeRAM() == true
+         * otherwise it defaults to 1 (yes, do pause)
+         * @hide
+         */
+		 
+        public static final String HALO_PAUSE = "halo_pause";
+
+        /**
+         * HALO size fraction, default is 1.0f (normal)
+         * @hide
+         */
+        public static final String HALO_SIZE = "halo_size";
+
+        /**
+         * HALO ninja?, should default to 0 (no, do not disappear when empty)
          * @hide
          */
         public static final String HALO_NINJA = "halo_ninja";
