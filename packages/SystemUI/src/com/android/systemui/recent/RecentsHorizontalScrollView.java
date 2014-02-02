@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.graphics.Canvas;
-import android.os.Handler;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -179,8 +178,7 @@ public class RecentsHorizontalScrollView extends HorizontalScrollView
     public void removeViewInLayout(final View view) {
         dismissChild(view);
     }
-	
-    /*
+
     @Override
     public void removeAllViewsInLayout() {
         smoothScrollTo(0, 0);
