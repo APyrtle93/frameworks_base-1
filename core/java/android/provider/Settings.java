@@ -3789,33 +3789,7 @@ public final class Settings {
          * 7 == bounce_interpolator
          * @hide
          */
-		 
-         public static final String LISTVIEW_INTERPOLATOR = "listview_interpolator";
-
-         /**
-         * Width and height of output video expressed in WxH
-         * @hide
-         */
-        public static final String SCREEN_RECORDER_OUTPUT_DIMENSIONS = "screen_recorder_output_dimensions";
-
-        /**
-         * Screen recorder framerate in bits per second
-         * @hide
-         */
-        public static final String SCREEN_RECORDER_BITRATE = "screen_recorder_bitrate";
-
-        /**
-         * Should the non-intrsive incall ui be used
-         *
-         * @hide
-         */
-        public static final String NON_INTRUSIVE_INCALL = "non_intrusive_incall";
-
-        /**
-         * Setting to show determine if AOSP dialer is used
-         * @hide
-         */
-        public static final String AOSP_DIALER = "aosp_dialer";
+        public static final String LISTVIEW_INTERPOLATOR = "listview_interpolator";
 
         /**
          * Holds the text for the Carrier label. An empty string
