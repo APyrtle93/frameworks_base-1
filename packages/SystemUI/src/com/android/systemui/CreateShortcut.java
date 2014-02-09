@@ -1,17 +1,17 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright (C) 2010 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package com.android.systemui;
 
@@ -50,7 +50,8 @@ public class CreateShortcut extends LauncherActivity {
     private static final int DLG_SECRET = 0;
     private static final int DLG_SECRET_CHK = 1;
     private static final int DLG_SECRET_INT = 2;
-	private static final int DLG_SECRET_NAME = 3;
+    private static final int DLG_SECRET_NAME = 3;
+    private static final int DLG_TOGGLE = 4;
 
     private static final int SYSTEM_INT = 0;
     private static final int SECURE_INT = 1;
@@ -63,6 +64,8 @@ public class CreateShortcut extends LauncherActivity {
 
     private Intent mShortcutIntent;
     private Intent mIntent;
+
+    private CharSequence mName = null;
 
     @Override
     protected Intent getTargetIntent() {
@@ -90,10 +93,12 @@ public class CreateShortcut extends LauncherActivity {
         mShortcutIntent.setClassName(this, intentClass);
         mShortcutIntent.setAction(intentAction);
 
+        mName = itemForPosition(position).label;
+
         mIntent = new Intent();
         mIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON,
                 BitmapFactory.decodeResource(getResources(), returnIconResId(className)));
-        mIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, itemForPosition(position).label);
+        mIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, mName);
         if (className.equals("ChamberOfSecrets")) {
             showDialogSetting(DLG_SECRET);
         } else if (className.equals("Immersive")
@@ -119,6 +124,8 @@ public class CreateShortcut extends LauncherActivity {
             return R.drawable.ic_sysbar_lastapp;
         } else if (c.equals("Reboot")) {
             return R.drawable.ic_qs_reboot;
+        } else if (c.equals("Recovery")) {
+            return R.drawable.ic_qs_reboot_recovery;
         } else if (c.equals("Screenshot")) {
             return R.drawable.ic_sysbar_screenshot;
         } else if (c.equals("VolumePanel")) {
@@ -147,7 +154,7 @@ public class CreateShortcut extends LauncherActivity {
         if (isCheck) {
             String check = "0,1";
             mShortcutIntent.putExtra("array", check);
-            finalizeIntent();
+            showDialogSetting(DLG_SECRET_NAME);
         } else {
             showDialogSetting(DLG_SECRET_INT);
         }
@@ -165,8 +172,8 @@ public class CreateShortcut extends LauncherActivity {
             Toast.makeText(CreateShortcut.this,
                     R.string.chamber_name_toast,
                     Toast.LENGTH_LONG).show();
-        }		
-        showDialogSetting(DLG_SECRET_NAME);
+        }
+        finalizeIntent();
     }
 
     private void showDialogSetting(int id) {
@@ -193,7 +200,7 @@ public class CreateShortcut extends LauncherActivity {
                         int test = 0;
                         long testLong = 0;
                         float testFloat = 0;
-                        // Necessary ugly code.  Do it here so we don't have to again.
+                        // Necessary ugly code. Do it here so we don't have to again.
                         try {
                             test = Settings.System.getIntForUser(
                                     getContentResolver(),
@@ -342,7 +349,7 @@ public class CreateShortcut extends LauncherActivity {
                                 builder.append(st + ",");
                             }
                             str = builder.toString();
-                            // Set to string.  Launcher doesn't persist array
+                            // Set to string. Launcher doesn't persist array
                             // extras after a reboot.
                             setSettingArray(str);
                         } else {
@@ -376,7 +383,31 @@ public class CreateShortcut extends LauncherActivity {
                     }
                 });
                 alertName.show();
-                break;				
+                break;
+            case DLG_TOGGLE:
+                final CharSequence[] items = {
+                    getResources().getString(R.string.off),
+                    getResources().getString(R.string.on),
+                    getResources().getString(R.string.toggle),
+                };
+                AlertDialog.Builder alertToggle = new AlertDialog.Builder(this);
+                alertToggle.setTitle(R.string.shortcut_toggle_title)
+                .setNegativeButton(R.string.cancel,
+                    new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, final int item) {
+                        mShortcutIntent.putExtra("value", item);
+                        mIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME,
+                                mName + " " + items[item]);
+                        finalizeIntent();
+                    }
+                });
+                alertToggle.show();
+                break;
         }
     }
 }
