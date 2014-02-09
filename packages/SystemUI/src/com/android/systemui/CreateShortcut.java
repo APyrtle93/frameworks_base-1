@@ -96,6 +96,11 @@ public class CreateShortcut extends LauncherActivity {
         mIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, itemForPosition(position).label);
         if (className.equals("ChamberOfSecrets")) {
             showDialogSetting(DLG_SECRET);
+        } else if (className.equals("Immersive")
+                || className.equals("QuietHours")
+                || className.equals("Torch")
+                || className.equals("Rotation")) {
+            showDialogSetting(DLG_TOGGLE);
         } else {
             finalizeIntent();
         }
@@ -116,8 +121,8 @@ public class CreateShortcut extends LauncherActivity {
             return R.drawable.ic_qs_reboot;
         } else if (c.equals("Screenshot")) {
             return R.drawable.ic_sysbar_screenshot;
-        } else if (c.equals("SleepScreen")) {
-            return R.drawable.ic_qs_sleep;
+        } else if (c.equals("VolumePanel")) {
+            return R.drawable.ic_qs_volume;
         } else if (c.equals("ChamberOfSecrets")) {
             return R.drawable.ic_qs_reboot_recovery;
         } else {
