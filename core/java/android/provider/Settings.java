@@ -3266,7 +3266,7 @@ public final class Settings {
          */
         public static final String PIE_BUTTONS_CONFIG_SECOND_LAYER =
                 "pie_buttons_config_second_layer";
-				
+	/**				
          * Enable looking up of phone numbers of nearby places
          *
          * @hide
