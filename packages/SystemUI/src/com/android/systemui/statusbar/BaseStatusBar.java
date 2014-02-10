@@ -205,6 +205,8 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected PieController mPieController;
     public NavigationBarOverlay mNavigationBarOverlay;
 
+    private EdgeGestureManager mEdgeGestureManager;
+
     // UI-specific methods
 
     /**
@@ -483,12 +485,15 @@ public abstract class BaseStatusBar extends SystemUI implements
     }
 
     private void initPieController() {
+        if (mEdgeGestureManager == null) {
+            mEdgeGestureManager = EdgeGestureManager.getInstance();
+        }
         if (mNavigationBarOverlay == null) {
             mNavigationBarOverlay = new NavigationBarOverlay();
         }
         if (mPieController == null) {
-            mPieController = new PieController(mContext);
-            mPieController.attachStatusBar(this);
+            mPieController = new PieController(
+                    mContext, this, mEdgeGestureManager, mNavigationBarOverlay);
             addNavigationBarCallback(mPieController);
         }
     }
@@ -499,6 +504,12 @@ public abstract class BaseStatusBar extends SystemUI implements
             mPieController.attachContainer();
         } else {
             mPieController.detachContainer(false);
+        }
+    }
+
+    public void setOverwriteImeIsActive(boolean enabled) {
+        if (mEdgeGestureManager != null) {
+            mEdgeGestureManager.setOverwriteImeIsActive(enabled);
         }
     }
 
