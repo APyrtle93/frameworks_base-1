@@ -542,7 +542,7 @@ public class WindowManagerService extends IWindowManager.Stub
 
     float mWindowAnimationScale = 0.5f;
     float mTransitionAnimationScale = 0.5f;
-    float mAnimatorDurationScale = 0.5f;
+    float mAnimatorDurationScale = 0.75f;
 
     final InputManagerService mInputManager;
     final DisplayManagerService mDisplayManagerService;
