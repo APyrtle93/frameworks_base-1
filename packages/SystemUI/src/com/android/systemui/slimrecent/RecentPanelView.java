@@ -1,18 +1,19 @@
 /*
- * Copyright (C) 2014 SlimRoms Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
+* Copyright (C) 2014 SlimRoms Project
+* Author: Lars Greiss - email: kufikugel@googlemail.com
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not
+* use this file except in compliance with the License. You may obtain a copy of
+* the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*/
 
 package com.android.systemui.slimrecent;
 
@@ -41,37 +42,47 @@ import android.widget.ImageView;
 import com.android.cards.internal.Card;
 import com.android.cards.internal.CardArrayAdapter;
 import com.android.cards.view.CardListView;
-import com.android.cards.view.CardView;
 import com.android.systemui.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+* Our main view controller which handles and construct most of the view
+* related tasks.
+*
+* Constructing the actual cards, add the listeners, loading or updating the tasks
+* and inform all relevant classes with the listeners is done here.
+*
+* As well the actual click, longpress or swipe action methods are holded here.
+*/
 public class RecentPanelView {
 
-    protected static String TAG = "RecentPanelView";
-    static final boolean DEBUG = false;
+    private static final String TAG = "RecentPanelView";
+    private static final boolean DEBUG = true;
 
     private static final int DISPLAY_TASKS = 20;
-    private static final int MAX_TASKS = DISPLAY_TASKS + 1; // allow extra for non-apps
+    public static final int MAX_TASKS = DISPLAY_TASKS + 1; // allow extra for non-apps
 
-    public static final int EXPANDED_STATE_UNKNOWN   = 0;
-    public static final int EXPANDED_STATE_EXPANDED  = 1;
+    private static final int EXPANDED_STATE_UNKNOWN = 0;
+    public static final int EXPANDED_STATE_EXPANDED = 1;
     public static final int EXPANDED_STATE_COLLAPSED = 2;
     public static final int EXPANDED_STATE_BY_SYSTEM = 4;
 
-    private Context mContext;
-    private CardListView mListView;
-    private ImageView mEmptyRecentView;
+    private final Context mContext;
+    private final CardListView mListView;
+    private final ImageView mEmptyRecentView;
+
+    private final RecentController mController;
 
     // Our array adapter holding all cards
     private CardArrayAdapter mCardArrayAdapter;
     // Array list of all current cards
     private ArrayList<Card> mCards;
     // Array list of all current tasks
-    private ArrayList<TaskDescription> mTasks = new ArrayList<TaskDescription>();;
+    private final ArrayList<TaskDescription> mTasks = new ArrayList<TaskDescription>();;
     // Array list of all expanded states of apps accessed during the session
-    private ArrayList<TaskExpandedStates> mExpandedTaskStates =
+    private final ArrayList<TaskExpandedStates> mExpandedTaskStates =
             new ArrayList<TaskExpandedStates>();
 
     private boolean mCancelledByUser;
@@ -96,19 +107,20 @@ public class RecentPanelView {
         mOnTasksLoadedListener = onTasksLoadedListener;
     }
 
-
-    public RecentPanelView(Context context, CardListView listView, ImageView emptyRecentView) {
+    public RecentPanelView(Context context, RecentController controller,
+            CardListView listView, ImageView emptyRecentView) {
         mContext = context;
         mListView = listView;
         mEmptyRecentView = emptyRecentView;
+        mController = controller;
 
         buildCardListAndAdapter();
     }
 
     /**
-     * Build card list and arrayadapter we need to fill with tasks
-     */
-    public void buildCardListAndAdapter() {
+* Build card list and arrayadapter we need to fill with tasks
+*/
+    protected void buildCardListAndAdapter() {
         mCards = new ArrayList<Card>();
         mCardArrayAdapter = new CardArrayAdapter(mContext, mCards);
         if (mListView != null) {
@@ -117,9 +129,9 @@ public class RecentPanelView {
     }
 
     /**
-     * Assign the listeners to the card.
-     */
-    private RecentCard assignListeners(RecentCard card, final TaskDescription td) {
+* Assign the listeners to the card.
+*/
+    private RecentCard assignListeners(final RecentCard card, final TaskDescription td) {
         if (DEBUG) Log.v(TAG, "add listeners to task card");
 
         // Listen for swipe to close and remove the app.
@@ -150,7 +162,7 @@ public class RecentPanelView {
             @Override
             public void onExpandEnd(Card card) {
                 if (DEBUG) Log.v(TAG, td.getLabel() + " is expanded");
-                int oldState = td.getExpandedState();
+                final int oldState = td.getExpandedState();
                 int state = EXPANDED_STATE_EXPANDED;
                 if ((oldState & EXPANDED_STATE_BY_SYSTEM) != 0) {
                     state |= EXPANDED_STATE_BY_SYSTEM;
@@ -163,7 +175,7 @@ public class RecentPanelView {
             @Override
             public void onCollapseEnd(Card card) {
                 if (DEBUG) Log.v(TAG, td.getLabel() + " is collapsed");
-                int oldState = td.getExpandedState();
+                final int oldState = td.getExpandedState();
                 int state = EXPANDED_STATE_COLLAPSED;
                 if ((oldState & EXPANDED_STATE_BY_SYSTEM) != 0) {
                     state |= EXPANDED_STATE_BY_SYSTEM;
@@ -175,8 +187,8 @@ public class RecentPanelView {
     }
 
     /**
-     * Remove requested application.
-     */
+* Remove requested application.
+*/
     private void removeApplication(TaskDescription td) {
         if (DEBUG) Log.v(TAG, "Jettison " + td.getLabel());
 
@@ -193,8 +205,8 @@ public class RecentPanelView {
             mListView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SELECTED);
             mListView.setContentDescription(null);
 
-            // Remove app from task and expanded state list.
-            removeExpandedTaskState(td.getLabel());
+            // Remove app from task, cache and expanded state list.
+            removeApplicationBitmapCacheAndExpandedState(td);
             mTasks.remove(td);
             mTasksSize--;
         }
@@ -207,16 +219,16 @@ public class RecentPanelView {
     }
 
     /**
-     * Remove all applications. Call from controller class
-     */
-    public void removeAllApplications() {
+* Remove all applications. Call from controller class
+*/
+    protected void removeAllApplications() {
         final ActivityManager am = (ActivityManager)
                 mContext.getSystemService(Context.ACTIVITY_SERVICE);
         for (TaskDescription td : mTasks) {
             // Kill all recent apps.
             if (am != null) {
                 am.removeTask(td.persistentTaskId, ActivityManager.REMOVE_TASK_KILL_PROCESS);
-                removeExpandedTaskState(td.getLabel());
+                removeApplicationBitmapCacheAndExpandedState(td);
             }
         }
         // Clear all relevant values.
@@ -226,20 +238,35 @@ public class RecentPanelView {
     }
 
     /**
-     * Start application or move to forground if still active.
-     */
+* Remove application bitmaps from LRU cache and expanded state list.
+*/
+    private void removeApplicationBitmapCacheAndExpandedState(TaskDescription td) {
+            // Remove application thumbnail.
+            CacheController.getInstance(mContext)
+                    .removeBitmapFromMemCache(String.valueOf(td.persistentTaskId));
+            // Remove application icon.
+            CacheController.getInstance(mContext)
+                    .removeBitmapFromMemCache(td.packageName);
+            // Remove from expanded state list.
+            removeExpandedTaskState(td.getLabel());
+    }
+
+    /**
+* Start application or move to forground if still active.
+*/
     private void startApplication(TaskDescription td) {
         // Starting app is requested by the user.
         // Move it to foreground or start it with custom animation.
         final ActivityManager am = (ActivityManager)
                 mContext.getSystemService(Context.ACTIVITY_SERVICE);
-        Bundle opts = ActivityOptions.makeCustomAnimation(
-                        mContext, R.anim.slide_in_right, R.anim.fade_out).toBundle();
+        final Bundle opts = ActivityOptions.makeCustomAnimation(
+                mContext, com.android.internal.R.anim.recent_screen_enter,
+                com.android.internal.R.anim.recent_screen_fade_out).toBundle();
         if (td.taskId >= 0) {
             // This is an active task; it should just go to the foreground.
             am.moveTaskToFront(td.taskId, ActivityManager.MOVE_TASK_WITH_HOME, opts);
         } else {
-            Intent intent = td.intent;
+            final Intent intent = td.intent;
             intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
                     | Intent.FLAG_ACTIVITY_TASK_ON_HOME
                     | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -257,14 +284,15 @@ public class RecentPanelView {
     }
 
     /**
-     * Start application details screen.
-     */
+* Start application details screen.
+*/
     private void startApplicationDetailsActivity(String packageName) {
         // Starting app details screen is requested by the user.
         // Start it with custom animation.
-        Bundle opts = ActivityOptions.makeCustomAnimation(
-                        mContext, R.anim.slide_in_right, R.anim.fade_out).toBundle();
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        final Bundle opts = ActivityOptions.makeCustomAnimation(
+                mContext, com.android.internal.R.anim.recent_screen_enter,
+                com.android.internal.R.anim.recent_screen_fade_out).toBundle();
+        final Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                 Uri.fromParts("package", packageName, null));
         intent.setComponent(intent.resolveActivity(mContext.getPackageManager()));
         mContext.startActivityAsUser(intent, opts,
@@ -273,13 +301,13 @@ public class RecentPanelView {
     }
 
     /**
-     * Create a TaskDescription, returning null if the title or icon is null.
-     */
+* Create a TaskDescription, returning null if the title or icon is null.
+*/
     private TaskDescription createTaskDescription(int taskId, int persistentTaskId,
             Intent baseIntent, ComponentName origActivity,
             CharSequence description, int expandedState) {
 
-        Intent intent = new Intent(baseIntent);
+        final Intent intent = new Intent(baseIntent);
         if (origActivity != null) {
             intent.setComponent(origActivity);
         }
@@ -295,7 +323,7 @@ public class RecentPanelView {
                 if (DEBUG) Log.v(TAG, "creating activity desc for id="
                         + persistentTaskId + ", label=" + title);
 
-                TaskDescription item = new TaskDescription(taskId,
+                final TaskDescription item = new TaskDescription(taskId,
                         persistentTaskId, resolveInfo, baseIntent, info.packageName,
                         description, expandedState);
                 item.setLabel(title);
@@ -308,9 +336,9 @@ public class RecentPanelView {
     }
 
     /**
-     * Load all tasks we want.
-     */
-    public void loadTasks() {
+* Load all tasks we want.
+*/
+    protected void loadTasks() {
         if (DEBUG) Log.v(TAG, "loading tasks");
         mTasksLoaded = false;
         updateExpandedTaskStates();
@@ -324,7 +352,7 @@ public class RecentPanelView {
                 am.getRecentTasks(MAX_TASKS, ActivityManager.RECENT_IGNORE_UNAVAILABLE
                         | ActivityManager.RECENT_WITH_EXCLUDED
                         | ActivityManager.RECENT_DO_NOT_COUNT_EXCLUDED);
-        int numTasks = recentTasks.size();
+        final int numTasks = recentTasks.size();
         ActivityInfo homeInfo = new Intent(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_HOME).resolveActivityInfo(pm, 0);
 
@@ -341,7 +369,7 @@ public class RecentPanelView {
             }
             final ActivityManager.RecentTaskInfo recentInfo = recentTasks.get(i);
 
-            Intent intent = new Intent(recentInfo.baseIntent);
+            final Intent intent = new Intent(recentInfo.baseIntent);
             if (recentInfo.origActivity != null) {
                 intent.setComponent(recentInfo.origActivity);
             }
@@ -385,22 +413,22 @@ public class RecentPanelView {
 
         // We have all needed tasks now.
         // Let us load the cards for it in background.
-        CardLoader cardLoader = new CardLoader();
-        cardLoader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        final CardLoader cardLoader = new CardLoader();
+        cardLoader.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
     }
 
     /**
-     * Set correct visibility states for the listview and the empty recent icon.
-     */
+* Set correct visibility states for the listview and the empty recent icon.
+*/
     private void setVisibility() {
         mEmptyRecentView.setVisibility(mTasksSize == 0 ? View.VISIBLE : View.GONE);
         mListView.setVisibility(mTasksSize == 0 ? View.GONE : View.VISIBLE);
     }
 
     /**
-     * We are holding a list of user expanded state of apps.
-     * Update the List for actual apps.
-     */
+* We are holding a list of user expanded state of apps.
+* Update the List for actual apps.
+*/
     private void updateExpandedTaskStates() {
         for (TaskDescription item : mTasks) {
             boolean updated = false;
@@ -418,9 +446,9 @@ public class RecentPanelView {
     }
 
     /**
-     * We are holding a list of user expanded state of apps.
-     * Get expanded state of the app.
-     */
+* We are holding a list of user expanded state of apps.
+* Get expanded state of the app.
+*/
     private int getExpandedState(TaskDescription item) {
         for (TaskExpandedStates oldTask : mExpandedTaskStates) {
             if (DEBUG) Log.v(TAG, "old task label = "+ oldTask.getLabel()
@@ -433,9 +461,9 @@ public class RecentPanelView {
     }
 
     /**
-     * We are holding a list of user expanded state of apps.
-     * Remove expanded state entry due that app was removed by the user.
-     */
+* We are holding a list of user expanded state of apps.
+* Remove expanded state entry due that app was removed by the user.
+*/
     private void removeExpandedTaskState(String label) {
         TaskExpandedStates expandedStateToDelete = null;
         for (TaskExpandedStates expandedState : mExpandedTaskStates) {
@@ -448,29 +476,66 @@ public class RecentPanelView {
         }
     }
 
-    public void notifyDataSetChanged() {
-        mCardArrayAdapter.notifyDataSetChanged();
-        // We want to have the list scrolled down before it is visible for the user.
-        // Whoever calls notifyDataSetChanged() first (not visible) do it now.
-        if (mListView != null) {
-            mListView.setSelection(mCardArrayAdapter.getCount() - 1);
+    protected void notifyDataSetChanged(boolean forceupdate) {
+        if (forceupdate || !mController.isShowing()) {
+            // We want to have the list scrolled down before it is visible for the user.
+            // Whoever calls notifyDataSetChanged() first (not visible) do it now.
+            if (mListView != null) {
+                mListView.setSelection(mCards.size() - 1);
+            }
+            mCardArrayAdapter.notifyDataSetChanged();
         }
     }
 
-    public void setCancelledByUser(boolean cancelled) {
+    /**
+* Third loading stage. Container is now visible,
+* tasks were completly loaded, visible elements
+* were loaded as well. So let us trigger for all invisible
+* views the asynctask loaders. This triggers bitmap load
+* for collapsed expanded cards and as well app icon load
+* for all non visible cards on the screen.
+* We are doing this here to avoid peformance issues
+* on scrolling. Recents screen has a max entry of 21
+* tasks so this is a good approach to load now all
+* user information without having any downsides.
+*
+*/
+    protected void updateInvisibleCards() {
+        RecentCard card;
+        final int size = mCards.size();
+        // We set here an internal value
+        // to prepare force load of the task
+        // thumbnails.
+        for (int i = 0; i < size; i++) {
+            card = (RecentCard) mCards.get(i);
+            card.forceSetLoadExpandedContent();
+        }
+        // Actually trigger on all cards the load if
+        // the content was not loaded allready. This
+        // decisision is done in the cards themselves.
+        for (int i = size - 1; i >= 0; i--) {
+            mCardArrayAdapter.getView(i, null, mListView);
+        }
+    }
+
+    protected void setCancelledByUser(boolean cancelled) {
         mCancelledByUser = cancelled;
         if (cancelled) {
             mTasksLoaded = false;
         }
     }
 
-    public boolean isTasksLoaded() {
+    protected boolean isCancelledByUser() {
+        return mCancelledByUser;
+    }
+
+    protected boolean isTasksLoaded() {
         return mTasksLoaded;
     }
 
     /**
-     * Notify listener that tasks are loaded.
-     */
+* Notify listener that tasks are loaded.
+*/
     private void tasksLoaded() {
         if (mOnTasksLoadedListener != null) {
             mTasksLoaded = true;
@@ -479,8 +544,8 @@ public class RecentPanelView {
     }
 
     /**
-     * Notify listener that we exit recents panel now.
-     */
+* Notify listener that we exit recents panel now.
+*/
     private void exit() {
         if (mOnExitListener != null) {
             mOnExitListener.onExit();
@@ -500,22 +565,23 @@ public class RecentPanelView {
     }
 
     /**
-     * AsyncTask cardloader to load all cards in background. Preloading
-     * forces as well a card load or update. So if the user cancelled the preload
-     * or does not even open the recent panel we want to reduce the system
-     * load as much as possible. So we do it in background.
-     *
-     * Note: App icons as well the app screenshots are loaded in other
-     *       async tasks.
-     *       See #link:RecentCard and #link:RecentExpandedCard.
-     */
+* AsyncTask cardloader to load all cards in background. Preloading
+* forces as well a card load or update. So if the user cancelled the preload
+* or does not even open the recent panel we want to reduce the system
+* load as much as possible. So we do it in background.
+*
+* Note: App icons as well the app screenshots are loaded in other
+* async tasks.
+* See #link:RecentCard, #link:RecentExpandedCard
+* #link:RecentAppIcon and #link AppIconLoader
+*/
     private class CardLoader extends AsyncTask<Void, Void, Boolean> {
 
         private int mOrigPri;
         private int mCounter;
 
         public CardLoader() {
-            // Just the constructor.
+            // Empty constructor.
         }
 
         @Override
@@ -534,7 +600,7 @@ public class RecentPanelView {
                     return false;
                 }
 
-                TaskDescription task = mTasks.get(i);
+                final TaskDescription task = mTasks.get(i);
                 RecentCard card = null;
 
                 // We may have allready constructed and inflated card.
@@ -589,8 +655,7 @@ public class RecentPanelView {
 
             // Notify arrayadapter that data set has changed
             if (DEBUG) Log.v(TAG, "notifiy arrayadapter that data has changed");
-            notifyDataSetChanged();
-
+            notifyDataSetChanged(false);
             // Notfiy controller that tasks are completly loaded.
             tasksLoaded();
         }
@@ -598,10 +663,10 @@ public class RecentPanelView {
     }
 
     /**
-     * We are holding a list of user expanded states of apps.
-     * This class describes one expanded state object.
-     */
-    private final class TaskExpandedStates {
+* We are holding a list of user expanded states of apps.
+* This class describes one expanded state object.
+*/
+    private static final class TaskExpandedStates {
         private String mLabel;
         private int mExpandedState;
 
