@@ -106,6 +106,7 @@ public class KeyguardViewManager {
 
     private boolean mScreenOn = false;
     private LockPatternUtils mLockPatternUtils;
+    private AudioManager mAudioManager;
 
     private Drawable mCustomBackground = null;
     private boolean mBlurEnabled = false;
