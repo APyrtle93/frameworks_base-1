@@ -4035,16 +4035,6 @@ public final class Settings {
         public static final String NOTIFICATION_CUSTOM_CARRIER_LABEL = "notification_custom_carrier_label";
 
         /**
-         * @hide
-         */
-        public static final String LARGE_RECENT_THUMBS = "large_recent_thumbs";
-
-        /**
-         * @hide
-         */
-        public static final String RECENTS_PANEL_COLOR = "recents_panel_color";
-
-        /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
