@@ -3238,12 +3238,6 @@ public final class Settings {
          */
         public static final String PIE_MENU = "pie_menu";
 
-	/**
-         * Configurable LTE or 4G icon - up to per user defined
-         * @hide
-         */
-        public static final String SHOW_LTE_OR_FOURGEE = "show_lte_or_fourgee";
-
         /**
          * Whether right edge PIE is mirrored or not
          * @hide
