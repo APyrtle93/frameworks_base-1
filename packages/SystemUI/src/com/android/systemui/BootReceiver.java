@@ -117,6 +117,7 @@ public class BootReceiver extends BroadcastReceiver {
                     calendar.getTimeInMillis(), notify);
         }
 
+>>>>>>> 8d0ecdc... Frameworks: Notification Reminders (1/2)
         try {
             // Start the load average overlay, if activated
             ContentResolver res = context.getContentResolver();
