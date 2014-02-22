@@ -3018,12 +3018,6 @@ public final class Settings {
         public static final String WAKELOCK_BLOCKING_ENABLED = "wakelock_blocking_enabled";
 
         /**
-         * Enables MultiUser
-         * @hide
-         */
-        public static final String ALLOW_MULTIUSER = "allow_multiuser";
-
-        /**
          * @hide
          */
         public static final String WAKELOCK_BLOCKING_LIST = "wakelock_blocking_list";
