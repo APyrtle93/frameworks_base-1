@@ -4257,8 +4257,16 @@ public final class Settings {
         public static final String KEY_HOME_ACTION = "key_home_action";
 
         /**
-         * Action to perform when the home key is long-pressed. (default: ACTION_RECENTS)
-         * (See ButtonsConstants.java for valid values)
+         * Whether to include audio when recording a video
+         * @hide
+         */
+        public static final String SCREEN_RECORDER_RECORD_AUDIO = "screen_recorder_record_audio";
+
+        /**
+         * Swap volume buttons when the screen is rotated
+         * 0 - Disabled
+         * 1 - Enabled (screen is rotated by 90 or 180 degrees: phone, hybrid)
+         * 2 - Enabled (screen is rotated by 180 or 270 degrees: tablet)
          * @hide
          */
         public static final String KEY_HOME_LONG_PRESS_ACTION = "key_home_long_press_action";
