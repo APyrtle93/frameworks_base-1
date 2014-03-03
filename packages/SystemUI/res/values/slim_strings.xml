@@ -42,7 +42,7 @@
     <string name="no">No</string>
 
     <!-- Slim Shortcut Actions -->
-    <string name="shortcut_picker">Validus13 Shortcuts</string>
+    <string name="shortcut_app">Validus13 Shortcuts</string>
     <string name="shortcut_immersive">Immersive Mode Toggle</string>
     <string name="shortcut_quiethours">Quiethours Toggle</string>
     <string name="shortcut_rotation">Rotation Lock Toggle</string>
