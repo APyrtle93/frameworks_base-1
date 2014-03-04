@@ -267,7 +267,7 @@ public class RecentPanelView {
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                 Uri.fromParts("package", packageName, null));
         intent.setComponent(intent.resolveActivity(mContext.getPackageManager()));
-        TaskStackBuilder.create(mContext)	298
+        TaskStackBuilder.create(mContext)	
                 .addNextIntentWithParentStack(intent).startActivities(opts);
         exit();
     }
