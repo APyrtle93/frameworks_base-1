@@ -511,7 +511,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.REMINDER_ALERT_INTERVAL), false, this,
                     UserHandle.USER_ALL);
-            update();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.CUSTOM_RECENT), false, this);
+            updateSettings();
         }
 
         @Override
@@ -1577,6 +1579,17 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
         if (recent != null) {
             recent.setOnTouchListener(mRecentsPreloadOnTouchListener);
+        final boolean mCustomRecent = Settings.System.getBoolean(mContext.getContentResolver(), 
+                        Settings.System.CUSTOM_RECENT, false);
+        if (mNavigationBarView.getRecentsButton() != null) {
+            mNavigationBarView.getRecentsButton().setOnClickListener(mRecentsClickListener);
+            if(!mCustomRecent) mNavigationBarView.getRecentsButton().setOnTouchListener(mRecentsPreloadOnTouchListener);
+        }
+        if (mNavigationBarView.getHomeButton() != null) {
+            mNavigationBarView.getHomeButton().setOnTouchListener(mHomeSearchActionListener);
+        }
+        if (mNavigationBarView.getSearchLight() != null || mCustomRecent) {
+            mNavigationBarView.getSearchLight().setOnTouchListener(mHomeSearchActionListener);
         }
         mNavigationBarView.getSearchLight().setOnTouchListener(mHomeSearchActionListener);
         setDisableHomeLongpress();
@@ -3889,8 +3902,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             mNavigationBarView.recreateNavigationBar();
         }
         repositionNavigationBar();
-
-        rebuildRecentsScreen();
+        rebuildRecentsScreen(); //it follow toggle settings
 
         // recreate StatusBarIconViews.
         for (int i = 0; i < nIcons; i++) {

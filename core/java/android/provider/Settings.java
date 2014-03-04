@@ -2986,7 +2986,14 @@ public final class Settings {
         public static final String HALO_ACTIVE = "halo_active";
   
         /**
-         * HALO reversed?, should default to 1 (yes, reverse)
+         * Custom Recent Control
+         *
+         * @hide
+         */
+        public static final String CUSTOM_RECENT = "custom_recent";
+
+        /**
+		 * HALO reversed?, should default to 1 (yes, reverse)
          * @hide
          */
         public static final String HALO_REVERSED = "halo_reversed";
