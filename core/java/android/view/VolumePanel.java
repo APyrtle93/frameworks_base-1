@@ -116,7 +116,7 @@ public class VolumePanel extends Handler implements OnSeekBarChangeListener, Vie
     public static final int VOLUME_OVERLAY_EXPANDED = 2;
     public static final int VOLUME_OVERLAY_NONE = 3;
 
-    private static final int TRANSLUCENT_START_LEVEL = 160;
+    private static final int TRANSLUCENT_START_LEVEL = 210;
     private static final int TRANSLUCENT_TO_OPAQUE_DURATION = 400;
 
     protected Context mContext;
@@ -127,6 +127,10 @@ public class VolumePanel extends Handler implements OnSeekBarChangeListener, Vie
     private boolean mVoiceCapable;
     private boolean mVolumeLinkNotification;
     private int mCurrentOverlayStyle = -1;
+
+    private final boolean mTranslucentDialog;
+    private boolean mShouldRunDropTranslucentAnimation = false;
+    private boolean mRunningDropTranslucentAnimation = false;
 
     private final boolean mTranslucentDialog;
     private boolean mShouldRunDropTranslucentAnimation = false;
@@ -1187,6 +1191,7 @@ public class VolumePanel extends Handler implements OnSeekBarChangeListener, Vie
         resetTimeout();
     }
 
+	
     private void applyTranslucentWindow() {
         if (!mTranslucentDialog || mRunningDropTranslucentAnimation) return;
 
