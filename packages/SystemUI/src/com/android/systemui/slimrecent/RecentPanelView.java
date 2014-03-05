@@ -49,8 +49,8 @@ import java.util.List;
 
 public class RecentPanelView {
 
-    protected static String TAG = "RecentPanelView";
-    static final boolean DEBUG = false;
+    private static final String TAG = "RecentPanelView";
+    private static final boolean DEBUG = false;
 
     private static final int DISPLAY_TASKS = 20;
     private static final int MAX_TASKS = DISPLAY_TASKS + 1; // allow extra for non-apps
@@ -76,6 +76,7 @@ public class RecentPanelView {
 
     private boolean mCancelledByUser;
     private boolean mTasksLoaded;
+    private boolean mIsLoading;
     private int mTasksSize;
 
     public interface OnExitListener {
@@ -310,9 +311,12 @@ public class RecentPanelView {
     /**
      * Load all tasks we want.
      */
-    public void loadTasks() {
+    protected void loadTasks() {
+        if (isTasksLoaded() || mIsLoading) {
+            return;
+        }
         if (DEBUG) Log.v(TAG, "loading tasks");
-        mTasksLoaded = false;
+        mIsLoading = true;
         updateExpandedTaskStates();
         mTasks.clear();
 
@@ -337,6 +341,7 @@ public class RecentPanelView {
         for (int i = first, index = 0; i < numTasks && (index < MAX_TASKS); ++i) {
             if (mCancelledByUser) {
                 if (DEBUG) Log.v(TAG, "loading tasks cancelled");
+                mIsLoading = false;
                 return;
             }
             final ActivityManager.RecentTaskInfo recentInfo = recentTasks.get(i);
@@ -460,11 +465,19 @@ public class RecentPanelView {
     public void setCancelledByUser(boolean cancelled) {
         mCancelledByUser = cancelled;
         if (cancelled) {
-            mTasksLoaded = false;
+            setTasksLoaded(false);
         }
     }
 
-    public boolean isTasksLoaded() {
+    protected void setTasksLoaded(boolean loaded) {
+        mTasksLoaded = loaded;
+    }
+
+    protected boolean isCancelledByUser() {
+        return mCancelledByUser;
+    }
+
+    protected boolean isTasksLoaded() {
         return mTasksLoaded;
     }
 
@@ -473,7 +486,8 @@ public class RecentPanelView {
      */
     private void tasksLoaded() {
         if (mOnTasksLoadedListener != null) {
-            mTasksLoaded = true;
+            setTasksLoaded(true);
+            mIsLoading = false;
             mOnTasksLoadedListener.onTasksLoaded();
         }
     }
@@ -484,7 +498,6 @@ public class RecentPanelView {
     private void exit() {
         if (mOnExitListener != null) {
             mOnExitListener.onExit();
-            mTasksLoaded = false;
         }
     }
 

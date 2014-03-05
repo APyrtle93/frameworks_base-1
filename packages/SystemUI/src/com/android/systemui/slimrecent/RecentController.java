@@ -64,6 +64,7 @@ public class RecentController implements RecentPanelView.OnExitListener,
     private boolean mIsShowing;
     private boolean mIsAnimating;
     private boolean mIsToggled;
+    private boolean mIsPreloaded;
 
     // The different views we need.
     private ViewGroup mParentView;
@@ -82,7 +83,11 @@ public class RecentController implements RecentPanelView.OnExitListener,
                 || Intent.ACTION_SCREEN_OFF.equals(action)) {
                 // Screen goes off or system dialogs should close.
                 // Get rid of our recents screen
-                hideRecents();
+                hideRecents(false);
+                if (DEBUG) Log.d(TAG, "braodcast system dialog");
+            } else if (Intent.ACTION_SCREEN_OFF.equals(action)){
+                hideRecents(true);
+                if (DEBUG) Log.d(TAG, "broadcast screen off");
             }
         }
     };
@@ -195,8 +200,17 @@ public class RecentController implements RecentPanelView.OnExitListener,
             if (!isShowing() && !mIsAnimating) {
                 mIsToggled = true;
                 if (mRecentPanelView.isTasksLoaded()) {
-                    if (DEBUG) Log.d(TAG, "tasks loaded....showRecents()");
+                    if (DEBUG) Log.d(TAG, "tasks loaded - showRecents()");
                     showRecents();
+                } else if (!mIsPreloaded) {
+                    // This should never happen due that preload should
+                    // always be done if someone calls recents. Well a lot
+                    // 3rd party apps forget the preload step. So we do it now.
+                    // Due that mIsToggled is true preloader will open the recent
+                    // screen as soon the preload is finished and the listener
+                    // notifies us that we are ready.
+                    if (DEBUG) Log.d(TAG, "preload was not called - do it now");
+                    preloadRecentTasksList();
                 }
             } else {
                 hideRecents();
@@ -210,6 +224,7 @@ public class RecentController implements RecentPanelView.OnExitListener,
     public void preloadRecentTasksList() {
         if (DEBUG) Log.d(TAG, "preloading recents");
         if (mRecentPanelView != null) {
+            mIsPreloaded = true;
             mRecentPanelView.setCancelledByUser(false);
             mRecentPanelView.loadTasks();
         }
@@ -265,9 +280,11 @@ public class RecentController implements RecentPanelView.OnExitListener,
     // Hide the recent window.
     private boolean hideRecents(boolean forceHide) {
         if (isShowing()) {
+            mIsPreloaded = false;
+            mIsToggled = false;
+            mRecentPanelView.setTasksLoaded(false);
             if (forceHide) {
                 if (DEBUG) Log.d(TAG, "force hide recent window");
-                mIsToggled = false;
                 mIsShowing = false;
                 CacheController.getInstance(mContext).setRecentScreenShowing(false);
                 mAnimationState = ANIMATION_STATE_NONE;
@@ -276,11 +293,10 @@ public class RecentController implements RecentPanelView.OnExitListener,
                 return true;
             } else if (mAnimationState != ANIMATION_STATE_OUT) {
                 if (DEBUG) Log.d(TAG, "out animation starting");
-                mIsToggled = false;
                 mAnimationState = ANIMATION_STATE_OUT;
                 mHandler.removeCallbacks(mRecentThirdStageLoader);
                 mHandler.postDelayed(mRecentThirdStageLoader, mContext.getResources().getInteger(
-                        com.android.internal.R.integer.config_recentExitDur));
+                        com.android.internal.R.integer.config_recentDefaultDur));
                 mWindowManager.removeView(mParentView);
                 return true;
             }
