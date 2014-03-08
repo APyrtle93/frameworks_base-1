@@ -1130,7 +1130,7 @@ public final class Settings {
             outKeySet.addAll(MOVED_TO_GLOBAL);
         }
 
-        /**
+    /**
      * Need to AOKP Custom Systems Animations
      *
      * Look up a boolean in the database.
@@ -1151,6 +1151,7 @@ public final class Settings {
                 return def;
             }
         }
+       /**
          * @hide
          * Convenience function for retrieving a single system settings value
          * as a boolean.  Note that internally setting values are always
