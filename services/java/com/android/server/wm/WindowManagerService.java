@@ -10964,6 +10964,7 @@ public class WindowManagerService extends IWindowManager.Stub
         mLastStatusBarVisibility |= flag;
     }
 
+<<<<<<< HEAD
     /** SPLIT VIEW **/
 
     // Full-screen app
@@ -11486,5 +11487,10 @@ public class WindowManagerService extends IWindowManager.Stub
 
     }
 
-    /** END SPLIT VIEW **/
+    /* @hide */
+    @Override
+    public int getSystemUIVisibility() {
+        return mLastStatusBarVisibility;
+    }
+
 }
