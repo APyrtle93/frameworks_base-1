@@ -267,13 +267,8 @@ public class RecentPanelView {
         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                 Uri.fromParts("package", packageName, null));
         intent.setComponent(intent.resolveActivity(mContext.getPackageManager()));
-<<<<<<< HEAD
-        TaskStackBuilder.create(mContext)	
-                .addNextIntentWithParentStack(intent).startActivities(opts);
-=======
         mContext.startActivityAsUser(intent, opts,
                 new UserHandle(UserHandle.USER_CURRENT));
->>>>>>> parent of 246bef8... Frameworks: slimrecents: call app details screen correctly
         exit();
     }
 
