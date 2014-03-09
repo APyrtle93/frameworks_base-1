@@ -3651,6 +3651,41 @@ public final class Settings {
          */
         public static final String NAVIGATION_BAR_BUTTON_TINT = "navigation_bar_button_tint";
 
+       /**
+         * @hide
+         */
+        public static final String ANIMATION_CONTROLS_NO_OVERRIDE = "animation_controls_no_override";
+
+        /**
+         *
+         * @hide
+         */
+        public static final String ANIMATION_CONTROLS_NO_SCROLL = "animation_controls_no_scroll";
+
+        /**
+         * Determine custom scroll friction.
+         * @hide
+         */
+        public static final String CUSTOM_SCROLL_FRICTION = "custom_scroll_friction";
+
+        /**
+         * Determine custom fling velocity.
+         * @hide
+         */
+        public static final String CUSTOM_FLING_VELOCITY = "custom_fling_velocity";
+
+        /**
+         * Determine custom overscroll distance.
+         * @hide
+         */
+        public static final String CUSTOM_OVERSCROLL_DISTANCE = "custom_overscroll_distance";
+
+        /**
+         * Determine custom overfling distance.
+         * @hide
+         */
+        public static final String CUSTOM_OVERFLING_DISTANCE = "custom_overfling_distance";
+		
         /**
          * Option To Colorize Navigation bar buttons in different modes
          * 0 = all, 1 = system icons, 2 = system icons + custom user icons
@@ -3863,7 +3898,6 @@ public final class Settings {
 		"toast_animation",
         };
         public static final String ANIMATION_CONTROLS_DURATION = "animation_controls_duration";
-        public static final String ANIMATION_CONTROLS_NO_OVERRIDE = "animation_controls_no_override";
 
         /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
