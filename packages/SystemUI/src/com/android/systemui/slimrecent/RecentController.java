@@ -1,26 +1,25 @@
 /*
-* Copyright (C) 2014 SlimRoms Project
-* Author: Lars Greiss - email: kufikugel@googlemail.com
-*
-* Licensed under the Apache License, Version 2.0 (the "License"); you may not
-* use this file except in compliance with the License. You may obtain a copy of
-* the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-* License for the specific language governing permissions and limitations under
-* the License.
-*/
+ * Copyright (C) 2014 SlimRoms Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 
 package com.android.systemui.slimrecent;
 
-import android.app.ActivityManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,11 +27,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
-import android.os.Handler;
 import android.util.Log;
+import android.view.animation.DecelerateInterpolator;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
@@ -45,37 +45,24 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.android.cards.view.CardListView;
+import com.android.cards.view.CardView;
 
 import com.android.systemui.R;
 
-/**
-* Our main recents controller.
-* Takes care of the toggle, preload, cancelpreload and close requests
-* and passes the requested actions trough to our views and the panel
-* view controller #link:RecentPanelView.
-*
-* As well the in out animation, constructing the main window container
-* and the remove all tasks animation/detection (#link:RecentListOnScaleGestureListener)
-* are handled here.
-*/
 public class RecentController implements RecentPanelView.OnExitListener,
         RecentPanelView.OnTasksLoadedListener {
 
     private static final String TAG = "SlimRecentsController";
     private static final boolean DEBUG = false;
 
-    // Animation control values.
-    private static final int ANIMATION_STATE_NONE = 0;
-    private static final int ANIMATION_STATE_IN = 1;
-    private static final int ANIMATION_STATE_OUT = 2;
-
-    // Animation state.
-    private int mAnimationState = ANIMATION_STATE_NONE;
+    // Duration for slide in and out fading animation.
+    private static final int CONTAINER_SLIDE_IN_OUT_DURATION = 300;
 
     private Context mContext;
     private WindowManager mWindowManager;
 
     private boolean mIsShowing;
+    private boolean mIsAnimating;
     private boolean mIsToggled;
     private boolean mIsPreloaded;
 
@@ -83,19 +70,17 @@ public class RecentController implements RecentPanelView.OnExitListener,
     private ViewGroup mParentView;
     private ViewGroup mRecentContainer;
     private LinearLayout mRecentContent;
-    private LinearLayout mRecentWarningContent;
     private ImageView mEmptyRecentView;
 
     // Main panel view.
     private RecentPanelView mRecentPanelView;
 
-    private Handler mHandler = new Handler();
-
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             if (DEBUG) Log.v(TAG, "onReceive: " + intent);
-            final String action = intent.getAction();
-            if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(action)) {
+            String action = intent.getAction();
+            if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(action)
+                || Intent.ACTION_SCREEN_OFF.equals(action)) {
                 // Screen goes off or system dialogs should close.
                 // Get rid of our recents screen
                 hideRecents(false);
@@ -113,10 +98,10 @@ public class RecentController implements RecentPanelView.OnExitListener,
         mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
 
         /**
-* Add intent actions to listen on it.
-* Screen off to get rid of recents,
-* same if close system dialogs is requested.
-*/
+         * Add intent actions to listen on it.
+         * Screen off to get rid of recents,
+         * same if close system dialogs is requested.
+         */
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
@@ -125,17 +110,19 @@ public class RecentController implements RecentPanelView.OnExitListener,
         mParentView = new FrameLayout(mContext);
 
         // Inflate our recents layout
+        LayoutInflater inflater =
+                (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mRecentContainer =
-                (RelativeLayout) View.inflate(context, R.layout.slim_recent, null);
+                (RelativeLayout) inflater.inflate(R.layout.slim_recent, null);
 
         // Get contents for rebuilding and gesture detector.
         mRecentContent =
                 (LinearLayout) mRecentContainer.findViewById(R.id.recent_content);
 
-        mRecentWarningContent =
+        LinearLayout recentWarningContent =
                 (LinearLayout) mRecentContainer.findViewById(R.id.recent_warning_content);
 
-        final CardListView cardListView =
+        CardListView cardListView =
                 (CardListView) mRecentContainer.findViewById(R.id.recent_list);
 
         mEmptyRecentView =
@@ -144,7 +131,7 @@ public class RecentController implements RecentPanelView.OnExitListener,
         // Prepare gesture detector.
         final ScaleGestureDetector recentListGestureDetector =
                 new ScaleGestureDetector(mContext,
-                        new RecentListOnScaleGestureListener(mRecentWarningContent, cardListView));
+                        new RecentListOnScaleGestureListener(recentWarningContent, cardListView));
 
         // Prepare recents panel view and set the listeners
         cardListView.setOnTouchListener(new View.OnTouchListener() {
@@ -154,7 +141,7 @@ public class RecentController implements RecentPanelView.OnExitListener,
                 return false;
             }
         });
-        mRecentPanelView = new RecentPanelView(mContext, this, cardListView, mEmptyRecentView);
+        mRecentPanelView = new RecentPanelView(mContext, cardListView, mEmptyRecentView);
         mRecentPanelView.setOnExitListener(this);
         mRecentPanelView.setOnTasksLoadedListener(this);
 
@@ -166,7 +153,7 @@ public class RecentController implements RecentPanelView.OnExitListener,
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_OUTSIDE) {
                     // Touch outside the recents window....hide recents window.
-                    return hideRecents(false);
+                    return hideRecents();
                 }
                 return false;
             }
@@ -179,7 +166,7 @@ public class RecentController implements RecentPanelView.OnExitListener,
                     && event.getAction() == KeyEvent.ACTION_UP
                     && !event.isCanceled()) {
                     // Back key was pressed....hide recents window.
-                    return hideRecents(false);
+                    return hideRecents();
                 }
                 return false;
             }
@@ -188,40 +175,29 @@ public class RecentController implements RecentPanelView.OnExitListener,
     }
 
     /**
-* External call from theme engines to apply
-* new styles.
-*/
+     * External call from theme engines to apply
+     * new styles.
+     */
     public void rebuildRecentsScreen() {
-        // Set new layout parameters and backgrounds.
-        if (mRecentContainer != null && mRecentContent != null
-                && mEmptyRecentView != null && mRecentWarningContent != null) {
-
-            final ViewGroup.LayoutParams layoutParams = mRecentContainer.getLayoutParams();
-            layoutParams.width =
-                    mContext.getResources().getDimensionPixelSize(R.dimen.recent_width);
-            mRecentContainer.setLayoutParams(layoutParams);
-
+        // Set new backgrounds
+        if (mRecentContent != null && mEmptyRecentView != null) {
             mRecentContent.setBackgroundResource(0);
             mRecentContent.setBackgroundResource(R.drawable.recent_bg_dropshadow);
-            mRecentWarningContent.setBackgroundResource(0);
-            mRecentWarningContent.setBackgroundResource(R.drawable.recent_warning_bg_dropshadow);
             mEmptyRecentView.setImageResource(0);
             mEmptyRecentView.setImageResource(R.drawable.ic_empty_recent);
         }
         // Rebuild complete adapter and lists to force style updates.
-        if (mRecentPanelView != null) {
-            mRecentPanelView.buildCardListAndAdapter();
-        }
+        mRecentPanelView.buildCardListAndAdapter();
     }
 
     /**
-* External call. Toggle recents panel.
-*/
+     * External call. Toggle recents panel.
+     */
     public void toggleRecents(Display display, int layoutDirection, View statusBarView) {
         if (DEBUG) Log.d(TAG, "toggle recents panel");
 
-        if (mAnimationState == ANIMATION_STATE_NONE) {
-            if (!isShowing()) {
+        if (!mIsAnimating) {
+            if (!isShowing() && !mIsAnimating) {
                 mIsToggled = true;
                 if (mRecentPanelView.isTasksLoaded()) {
                     if (DEBUG) Log.d(TAG, "tasks loaded - showRecents()");
@@ -237,14 +213,14 @@ public class RecentController implements RecentPanelView.OnExitListener,
                     preloadRecentTasksList();
                 }
             } else {
-                hideRecents(false);
+                hideRecents();
             }
         }
     }
 
     /**
-* External call. Preload recent tasks.
-*/
+     * External call. Preload recent tasks.
+     */
     public void preloadRecentTasksList() {
         if (DEBUG) Log.d(TAG, "preloading recents");
         if (mRecentPanelView != null) {
@@ -255,28 +231,29 @@ public class RecentController implements RecentPanelView.OnExitListener,
     }
 
     /**
-* External call. Cancel preload recent tasks.
-*/
+     * External call. Cancel preload recent tasks.
+     */
     public void cancelPreloadingRecentTasksList() {
         if (DEBUG) Log.d(TAG, "cancel preloading recents");
         if (mRecentPanelView != null) {
             mRecentPanelView.setCancelledByUser(true);
         }
+        hideRecents();
     }
 
     public void closeRecents() {
         if (DEBUG) Log.d(TAG, "closing recents panel");
-        hideRecents(false);
+        hideRecents();
     }
 
     /**
-* Get LayoutParams we need for the recents panel.
-*
-* @return LayoutParams
-*/
+     * Get LayoutParams we need for the recents panel.
+     *
+     * @return LayoutParams
+     */
     private WindowManager.LayoutParams generateLayoutParameter() {
-        final int width = mContext.getResources().getDimensionPixelSize(R.dimen.recent_width);
-        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+        int width = mContext.getResources().getDimensionPixelSize(R.dimen.recent_width);
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 width,
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.TYPE_STATUS_BAR_PANEL,
@@ -286,33 +263,27 @@ public class RecentController implements RecentPanelView.OnExitListener,
                         | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH
                         | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
                 PixelFormat.TRANSLUCENT);
-        // Set animation for our recent window
-        params.windowAnimations = com.android.internal.R.style.Animation_RecentScreen;
-        // Turn on hardware acceleration for high end gfx devices.
-        if (ActivityManager.isHighEndGfx()) {
-            params.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
-            params.privateFlags |=
-                    WindowManager.LayoutParams.PRIVATE_FLAG_FORCE_HARDWARE_ACCELERATED;
-        }
-        // Set gravitiy.
-        params.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
         // This title is for debugging only. See: dumpsys window
         params.setTitle("RecentControlPanel");
+        params.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
         return params;
     }
 
-    // Returns if panel is currently showing.
-    public boolean isShowing() {
+    private boolean isShowing() {
         return mIsShowing;
     }
 
+    private boolean hideRecents() {
+        if (isShowing() && !mIsAnimating) {
+            mIsToggled = false;
+            getOutAnimation().start();
+            return true;
     // Hide the recent window.
     private boolean hideRecents(boolean forceHide) {
         if (isShowing()) {
             mIsPreloaded = false;
             mIsToggled = false;
             mRecentPanelView.setTasksLoaded(false);
-            mRecentPanelView.dismissPopup();
             if (forceHide) {
                 if (DEBUG) Log.d(TAG, "force hide recent window");
                 mIsShowing = false;
@@ -334,25 +305,17 @@ public class RecentController implements RecentPanelView.OnExitListener,
         return false;
     }
 
-    // Show the recent window.
     private void showRecents() {
-        if (DEBUG) Log.d(TAG, "in animation starting");
         mIsShowing = true;
-        CacheController.getInstance(mContext).setRecentScreenShowing(true);
-        mAnimationState = ANIMATION_STATE_IN;
-        mHandler.removeCallbacks(mRecentThirdStageLoader);
-        mHandler.postDelayed(mRecentThirdStageLoader, mContext.getResources().getInteger(
-                com.android.internal.R.integer.config_recentDefaultDur));
         mWindowManager.addView(mParentView, generateLayoutParameter());
+        getInAnimation().start();
     }
 
-    // Listener callback.
     @Override
     public void onExit() {
-        hideRecents(false);
+        hideRecents();
     }
 
-    // Listener callback.
     @Override
     public void onTasksLoaded() {
         if (mIsToggled && !isShowing()) {
@@ -362,51 +325,84 @@ public class RecentController implements RecentPanelView.OnExitListener,
     }
 
     /**
-* Runnable for our last loading stage.
-* It looks first weird to use a runable for it. But it does not harm here.
-* It just gives our in animation a bit time before we start loading invisible
-* content. Even in the case we are not ready and the user access allready not loaded
-* content the content will be loaded in this moment due that it get called by either
-* the third loading stage here or by the getView method from our cards arrayadapter.
-* So we are save here to call the third loading stage with the default animation delay.
-*
-* This helps especially low end non gfx devices to play the animation proper.
-*/
-    private final Runnable mRecentThirdStageLoader = new Runnable() {
-        @Override
-        public void run() {
-            if (mAnimationState == ANIMATION_STATE_IN) {
-                if (DEBUG) Log.d(TAG, "in animation finished");
-                // Now we can trigger 3rd loading stage and load
-                // all missing resources on invisble cards or
-                // content.
-                mRecentPanelView.updateInvisibleCards();
-                // We are now full visible. Notify to be safe the
-                // arrayadapter about this situation.
-                mRecentPanelView.notifyDataSetChanged(true);
-            } else if (mAnimationState == ANIMATION_STATE_OUT) {
+     * Prepare recents panel out animation.
+     * @return animation
+     */
+    private AnimatorSet getOutAnimation() {
+        mRecentContent.clearAnimation();
+        float width = mContext.getResources().getDimensionPixelSize(R.dimen.recent_width);
+        AnimatorSet animationSet = new AnimatorSet();
+        animationSet.playTogether(
+            // Animate out of the screen and fade out.
+            ObjectAnimator.ofFloat(mRecentContent, "translationX",  0.0f, width),
+            ObjectAnimator.ofFloat(mRecentContent, "alpha", 1.0f, 0.0f)
+        );
+        animationSet.setDuration(CONTAINER_SLIDE_IN_OUT_DURATION);
+        animationSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                if (DEBUG) Log.d(TAG, "out animation started");
+                mIsAnimating = true;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
                 if (DEBUG) Log.d(TAG, "out animation finished");
                 mIsShowing = false;
-                CacheController.getInstance(mContext).setRecentScreenShowing(false);
+                mIsAnimating = false;
+                mWindowManager.removeView(mParentView);
             }
-            mAnimationState = ANIMATION_STATE_NONE;
-        }
-    };
+        });
+        animationSet.setInterpolator(new DecelerateInterpolator());
+        return animationSet;
+    }
 
     /**
-* Extended SimpleOnScaleGestureListener to take
-* care of a pinch to zoom out gesture. This class
-* takes as well care on a bunch of animations which are needed
-* to control the final action.
-*/
+     * Prepare recents panel in animation.
+     * @return animation
+     */
+    private AnimatorSet getInAnimation() {
+        mRecentContent.clearAnimation();
+        float width = mContext.getResources().getDimensionPixelSize(R.dimen.recent_width);
+        AnimatorSet animationSet = new AnimatorSet();
+        animationSet.playTogether(
+            // Animate into the screen and fade in.
+            ObjectAnimator.ofFloat(mRecentContent, "translationX", width, 0.0f),
+            ObjectAnimator.ofFloat(mRecentContent, "alpha", 0.0f, 1.0f)
+        );
+        animationSet.setDuration(CONTAINER_SLIDE_IN_OUT_DURATION);
+        animationSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                if (DEBUG) Log.d(TAG, "in animation started");
+                mIsAnimating = true;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (DEBUG) Log.d(TAG, "in animation finished");
+                mIsAnimating = false;
+                mRecentPanelView.notifyDataSetChanged();
+            }
+        });
+        animationSet.setInterpolator(new DecelerateInterpolator());
+        return animationSet;
+    }
+
+    /**
+     * Extended SimpleOnScaleGestureListener to take
+     * care of a pinch to zoom out gesture. This class
+     * takes as well care on a bunch of animations which are needed
+     * to control the final action.
+     */
     private class RecentListOnScaleGestureListener extends SimpleOnScaleGestureListener {
 
         // Constants for scaling max/min values.
-        private final static float MAX_SCALING_FACTOR = 1.0f;
-        private final static float MIN_SCALING_FACTOR = 0.5f;
+        private final static float MAX_SCALING_FACTOR       = 1.0f;
+        private final static float MIN_SCALING_FACTOR       = 0.5f;
         private final static float MIN_ALPHA_SCALING_FACTOR = 0.55f;
 
-        private final static int ANIMATION_FADE_IN_DURATION = 400;
+        private final static int ANIMATION_FADE_IN_DURATION  = 400;
         private final static int ANIMATION_FADE_OUT_DURATION = 300;
 
         private float mScalingFactor = MAX_SCALING_FACTOR;
@@ -428,7 +424,7 @@ public class RecentController implements RecentPanelView.OnExitListener,
             mScalingFactor *= detector.getScaleFactor();
             mScalingFactor = Math.max(MIN_SCALING_FACTOR,
                     Math.min(mScalingFactor, MAX_SCALING_FACTOR));
-            final float alphaValue = Math.max(MIN_ALPHA_SCALING_FACTOR,
+            float alphaValue = Math.max(MIN_ALPHA_SCALING_FACTOR,
                     Math.min(mScalingFactor, MAX_SCALING_FACTOR));
 
             // Reset detection value.
@@ -521,7 +517,7 @@ public class RecentController implements RecentPanelView.OnExitListener,
                         mCardListView.setVisibility(View.GONE);
                         mCardListView.setAlpha(1.0f);
                         // Finally hide our recents screen.
-                        hideRecents(false);
+                        hideRecents();
                     }
                 });
                 animationSet.start();
