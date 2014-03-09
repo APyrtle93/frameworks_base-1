@@ -262,28 +262,6 @@ public class RecentController implements RecentPanelView.OnExitListener,
             mIsToggled = false;
             getOutAnimation().start();
             return true;
-    // Hide the recent window.
-    private boolean hideRecents(boolean forceHide) {
-        if (isShowing()) {
-            if (forceHide) {
-                if (DEBUG) Log.d(TAG, "force hide recent window");
-                mIsToggled = false;
-                mIsShowing = false;
-                CacheController.getInstance(mContext).setRecentScreenShowing(false);
-                mAnimationState = ANIMATION_STATE_NONE;
-                mHandler.removeCallbacks(mRecentThirdStageLoader);
-                mWindowManager.removeViewImmediate(mParentView);
-                return true;
-            } else if (mAnimationState != ANIMATION_STATE_OUT) {
-                if (DEBUG) Log.d(TAG, "out animation starting");
-                mIsToggled = false;
-                mAnimationState = ANIMATION_STATE_OUT;
-                mHandler.removeCallbacks(mRecentThirdStageLoader);
-                mHandler.postDelayed(mRecentThirdStageLoader, mContext.getResources().getInteger(
-                        com.android.internal.R.integer.config_recentExitDur));
-                mWindowManager.removeView(mParentView);
-                return true;
-            }
         }
         return false;
     }
