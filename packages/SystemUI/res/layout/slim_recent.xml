@@ -27,7 +27,7 @@
 
     <LinearLayout
         android:id="@+id/recent_content"
-        android:layout_width="@dimen/recent_width"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center"
@@ -35,9 +35,16 @@
 
         <com.android.cards.view.CardListView
             android:id="@+id/recent_list"
-            android:layout_width="@dimen/recent_width"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:stackFromBottom="true"
+            android:scrollbars="none"
+            android:overScrollMode="never"
+            android:background="@android:color/transparent"
+            android:cacheColorHint="@android:color/transparent"
+            android:fitsSystemWindows="true"
+            android:clipToPadding="false"
+            android:clipChildren="false"
             card:list_card_layout_resourceID="@layout/recent_base_card" />
 
         <ImageView
@@ -53,7 +60,7 @@
 
     <LinearLayout
         android:id="@+id/recent_warning_content"
-        android:layout_width="@dimen/recent_width"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="top|center_horizontal"
         android:orientation="vertical"
@@ -63,7 +70,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="30dp"
             android:src="@drawable/ic_menu_delete"
             />
 
