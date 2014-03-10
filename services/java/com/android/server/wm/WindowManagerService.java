@@ -811,6 +811,7 @@ public class WindowManagerService extends IWindowManager.Stub
 
         // Load hardware rotation from prop
         mSfHwRotation = android.os.SystemProperties.getInt("ro.sf.hwrotation",0) / 90;
+
     }
 
     public InputMonitor getInputMonitor() {

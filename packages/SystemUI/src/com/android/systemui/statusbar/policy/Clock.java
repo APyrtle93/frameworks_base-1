@@ -90,9 +90,6 @@ public class Clock extends TextView implements DemoMode {
     private int mAmPmStyle;
 
     private SettingsObserver mSettingsObserver;
-	
-    private boolean mCustomColor;
-    private int systemColor;
 
     protected class SettingsObserver extends ContentObserver {
         SettingsObserver(Handler handler) {
@@ -125,12 +122,6 @@ public class Clock extends TextView implements DemoMode {
             resolver.registerContentObserver(Settings.System
                     .getUriFor(Settings.System.STATUSBAR_CLOCK_DATE_FORMAT),
                     false, this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.CUSTOM_SYSTEM_ICON_COLOR), false,
-                    this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.SYSTEM_ICON_COLOR), false,
-                    this, UserHandle.USER_ALL);					
             updateSettings();
         }
 
@@ -356,29 +347,18 @@ public class Clock extends TextView implements DemoMode {
         mClockFontStyle = Settings.System.getIntForUser(resolver,
                 Settings.System.STATUSBAR_CLOCK_FONT_STYLE, FONT_NORMAL,
                 UserHandle.USER_CURRENT);
-				
-        mCustomColor = Settings.System.getIntForUser(resolver,
-                Settings.System.CUSTOM_SYSTEM_ICON_COLOR, 0,
-                UserHandle.USER_CURRENT) == 1;
 
         int defaultColor = getResources().getColor(R.color.status_bar_clock_color);
         int clockColor = Settings.System.getIntForUser(resolver,
                 Settings.System.STATUSBAR_CLOCK_COLOR, defaultColor,
                 UserHandle.USER_CURRENT);
-        int systemColor = Settings.System.getIntForUser(resolver,
-                Settings.System.SYSTEM_ICON_COLOR, defaultColor,
-                UserHandle.USER_CURRENT);				
         if (clockColor == Integer.MIN_VALUE) {
             // flag to reset the color
             clockColor = defaultColor;
         }
 
         if (mAttached) {
-            if (mCustomColor) {
-                setTextColor(systemColor);
-            } else {
-                setTextColor(clockColor);
-            }            
+            setTextColor(clockColor);
             getFontStyle(mClockFontStyle);
             updateClockVisibility();
             updateClock();
