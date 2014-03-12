@@ -132,7 +132,7 @@ import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.NotificationRowLayout;
 import com.android.systemui.statusbar.policy.OnSizeChangedListener;
 import com.android.systemui.statusbar.policy.RotationLockController;
-import com.android.systemui.omni.StatusHeaderMachine;
+import com.android.systemui.liquid.StatusHeaderMachine;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
