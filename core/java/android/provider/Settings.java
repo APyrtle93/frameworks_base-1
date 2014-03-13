@@ -1008,6 +1008,30 @@ public final class Settings {
         }
     }
 
+        /**
+         * If On-The-Go should be displayed at the power menu.
+         *
+         * @hide
+         */
+        public static final String POWER_MENU_ONTHEGO_ENABLED = "power_menu_onthego_enabled";
+
+        /**
+         * The alpha value of the On-The-Go overlay.
+         *
+         * @hide
+         */
+        public static final String ON_THE_GO_ALPHA = "on_the_go_alpha";
+
+        /**
+         * The camera instance to use.
+         * 0 = Rear Camera
+         * 1 = Front Camera
+         *
+         * @hide
+         */
+        public static final String ON_THE_GO_CAMERA = "on_the_go_camera";
+    }
+
     /**
      * System settings, containing miscellaneous system preferences.  This
      * table holds simple name/value pairs.  There are convenience
@@ -1020,7 +1044,7 @@ public final class Settings {
          * The content:// style URL for this table
          */
         public static final Uri CONTENT_URI =
-            Uri.parse("content://" + AUTHORITY + "/system");
+                Uri.parse("content://" + AUTHORITY + "/system");
 
         private static final NameValueCache sNameValueCache = new NameValueCache(
                 SYS_PROP_SETTING_VERSION,
@@ -1029,6 +1053,7 @@ public final class Settings {
                 CALL_METHOD_PUT_SYSTEM);
 
         private static final HashSet<String> MOVED_TO_SECURE;
+
         static {
             MOVED_TO_SECURE = new HashSet<String>(30);
             MOVED_TO_SECURE.add(Secure.ANDROID_ID);
@@ -1066,6 +1091,7 @@ public final class Settings {
 
         private static final HashSet<String> MOVED_TO_GLOBAL;
         private static final HashSet<String> MOVED_TO_SECURE_THEN_GLOBAL;
+
         static {
             MOVED_TO_GLOBAL = new HashSet<String>();
             MOVED_TO_SECURE_THEN_GLOBAL = new HashSet<String>();
@@ -1232,7 +1258,7 @@ public final class Settings {
         public static Uri getUriFor(String name) {
             if (MOVED_TO_SECURE.contains(name)) {
                 Log.w(TAG, "Setting " + name + " has moved from android.provider.Settings.System"
-                    + " to android.provider.Settings.Secure, returning Secure URI.");
+                        + " to android.provider.Settings.Secure, returning Secure URI.");
                 return Secure.getUriFor(Secure.CONTENT_URI, name);
             }
             if (MOVED_TO_GLOBAL.contains(name) || MOVED_TO_SECURE_THEN_GLOBAL.contains(name)) {
@@ -1523,6 +1549,60 @@ public final class Settings {
                 cr, FONT_SCALE, outConfig.fontScale, userHandle);
             if (outConfig.fontScale < 0) {
                 outConfig.fontScale = 1;
+            String v = getStringForUser(cr, name, userHandle);
+            try {
+                if (v != null)
+                    return "1".equals(v);
+                else
+                    return def;
+            } catch (NumberFormatException e) {
+                return def;
+            }
+        }
+
+        /**
+         * @hide
+         * Convenience function for updating a single settings value as a
+         * boolean. This will either create a new entry in the table if the
+         * given name does not exist, or modify the value of the existing row
+         * with that name. Note that internally setting values are always
+         * stored as strings, so this function converts the given value to a
+         * string (1 or 0) before storing it.
+         *
+         * @param cr The ContentResolver to access.
+         * @param name The name of the setting to modify.
+         * @param value The new value for the setting.
+         * @return true if the value was set, false on database errors
+         */
+        public static boolean putBoolean(ContentResolver cr, String name, boolean value) {
+            return putBooleanForUser(cr, name, value, UserHandle.myUserId());
+        }
+
+        /** @hide */
+        public static boolean putBooleanForUser(ContentResolver cr, String name, boolean value,
+                int userHandle) {
+            return putStringForUser(cr, name, value ? "1" : "0", userHandle);
+        }
+
+        /**
+         * Convenience function to read all of the current
+         * configuration-related settings into a
+         * {@link Configuration} object.
+         *
+         * @param cr The ContentResolver to access.
+         * @param outConfig Where to place the configuration settings.
+         */
+        public static void getConfiguration(ContentResolver cr, Configuration outConfig) {
+            getConfigurationForUser(cr, outConfig, UserHandle.myUserId());
+        }
+
+        /** @hide */
+        public static void getConfigurationForUser(ContentResolver cr, Configuration outConfig,
+                int userHandle) {
+            outConfig.fontScale = Settings.System.getFloatForUser(
+                    cr, FONT_SCALE, outConfig.fontScale, userHandle);
+            if (outConfig.fontScale < 0) {
+                outConfig.fontScale = 1;
             }
         }
 
@@ -1554,7 +1634,7 @@ public final class Settings {
 
         /** @hide */
         public static boolean hasInterestingConfigurationChanges(int changes) {
-            return (changes&ActivityInfo.CONFIG_FONT_SCALE) != 0;
+            return (changes & ActivityInfo.CONFIG_FONT_SCALE) != 0;
         }
 
         /** @deprecated - Do not use */
@@ -1789,7 +1869,7 @@ public final class Settings {
          * 0 -- neither connectable nor discoverable
          */
         public static final String BLUETOOTH_DISCOVERABILITY =
-            "bluetooth_discoverability";
+                "bluetooth_discoverability";
 
         /**
          * Bluetooth discoverability timeout.  If this value is nonzero, then
@@ -1797,7 +1877,7 @@ public final class Settings {
          * after which is becomes simply connectable.  The value is in seconds.
          */
         public static final String BLUETOOTH_DISCOVERABILITY_TIMEOUT =
-            "bluetooth_discoverability_timeout";
+                "bluetooth_discoverability_timeout";
 
         /**
          * @deprecated Use {@link android.provider.Settings.Secure#LOCK_PATTERN_ENABLED}
@@ -1820,7 +1900,7 @@ public final class Settings {
          */
         @Deprecated
         public static final String LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED =
-            "lock_pattern_tactile_feedback_enabled";
+                "lock_pattern_tactile_feedback_enabled";
 
 
         /**
@@ -1917,14 +1997,16 @@ public final class Settings {
          *
          * @hide
          */
-        public static final String AUTO_BRIGHTNESS_RESPONSIVENESS = "auto_brightness_responsiveness";
+        public static final String AUTO_BRIGHTNESS_RESPONSIVENESS =
+                "auto_brightness_responsiveness";
 
         /**
          * Whether to enable adjustment of automatic brightness adjustment
          * to sunrise and sunset.
          * @hide
          */
-        public static final String AUTO_BRIGHTNESS_TWILIGHT_ADJUSTMENT = "auto_brightness_twilight_adjustment";
+        public static final String AUTO_BRIGHTNESS_TWILIGHT_ADJUSTMENT =
+                "auto_brightness_twilight_adjustment";
 
         /**
          * Control whether the process CPU usage meter should be shown.
@@ -1945,17 +2027,40 @@ public final class Settings {
         public static final String ALWAYS_FINISH_ACTIVITIES = Global.ALWAYS_FINISH_ACTIVITIES;
 
         /**
+         * Volume Overlay Mode, This is behaviour of the volume overlay panel
+         * Defaults to 0 - which is simple
+         * @hide
+         */
+        public static final String MODE_VOLUME_OVERLAY = "mode_volume_overlay";
+
+        /** @hide */
+        public static final int VOLUME_OVERLAY_SINGLE     = 0;
+        /** @hide */
+        public static final int VOLUME_OVERLAY_EXPANDABLE = 1;
+        /** @hide */
+        public static final int VOLUME_OVERLAY_EXPANDED   = 2;
+        /** @hide */
+        public static final int VOLUME_OVERLAY_NONE       = 3;
+
+        /**
+         * Volume Adjust Sounds Enable, This is the noise made when using volume hard buttons
+         * Defaults to 1 - sounds enabled
+         * @hide
+         */
+        public static final String VOLUME_ADJUST_SOUNDS_ENABLED = "volume_adjust_sounds_enabled";
+
+        /**
          * Determines which streams are affected by ringer mode changes. The
          * stream type's bit should be set to 1 if it should be muted when going
          * into an inaudible ringer mode.
          */
         public static final String MODE_RINGER_STREAMS_AFFECTED = "mode_ringer_streams_affected";
 
-         /**
-          * Determines which streams are affected by mute. The
-          * stream type's bit should be set to 1 if it should be muted when a mute request
-          * is received.
-          */
+        /**
+         * Determines which streams are affected by mute. The
+         * stream type's bit should be set to 1 if it should be muted when a mute request
+         * is received.
+         */
          public static final String MUTE_STREAMS_AFFECTED = "mute_streams_affected";
 
         /**
