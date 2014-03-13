@@ -1130,28 +1130,6 @@ public final class Settings {
             outKeySet.addAll(MOVED_TO_GLOBAL);
         }
 
-        /**
-     * Need to AOKP Custom Systems Animations
-     *
-     * Look up a boolean in the database.
-     * @param resolver to access the database with
-     * @param name to look up in the table
-     * @param def Value to return if the setting is not defined.
-     * @return The setting's current value, or 'def' if it is not defined
-     * or not a valid boolean.
-     */
-        public static boolean getBoolean(ContentResolver cr, String name, boolean def) {
-            String v = getString(cr, name);
-            try {
-                if(v != null)
-                    return "1".equals(v);
-                else
-                    return def;
-            } catch (NumberFormatException e) {
-                return def;
-            }
-        }
-		
     /** 
 	* Need to AOKP Custom Systems Animations
 	*
