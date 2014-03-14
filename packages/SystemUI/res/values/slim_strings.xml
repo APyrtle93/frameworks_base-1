@@ -155,5 +155,8 @@
 
     <!-- Smart PullDown Warning -->
     <string name="smart_pulldown_disabled">Smart pulldown is disabled</string>
+	
+    <!-- Hide Them Shitz -->
+    <string name="status_bar_notification_hide_icon_packages">Hide notification icon</string>
 
 </resources>
