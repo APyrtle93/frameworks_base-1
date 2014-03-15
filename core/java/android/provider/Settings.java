@@ -3178,9 +3178,6 @@ public final class Settings {
         public static final String SAFE_HEADSET_VOLUME = "safe_headset_volume";
 
         /**
-<<<<<<< HEAD
-         * Whether to mute annoying notifications
-=======
          * Whether to show the battery bar
          * @hide
          */
@@ -3209,7 +3206,6 @@ public final class Settings {
         /**
          * Enable looking up of phone numbers of nearby places
          *
->>>>>>> a3e072f... Frameworks: Port BatteryBar (1/2)
          * @hide
          */
         public static final String MUTE_ANNOYING_NOTIFICATIONS_THRESHOLD =
