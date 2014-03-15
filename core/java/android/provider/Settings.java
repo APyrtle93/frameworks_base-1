@@ -1596,16 +1596,6 @@ public final class Settings {
             getConfigurationForUser(cr, outConfig, UserHandle.myUserId());
         }
 
-        /** @hide */
-        public static void getConfigurationForUser(ContentResolver cr, Configuration outConfig,
-                int userHandle) {
-            outConfig.fontScale = Settings.System.getFloatForUser(
-                    cr, FONT_SCALE, outConfig.fontScale, userHandle);
-            if (outConfig.fontScale < 0) {
-                outConfig.fontScale = 1;
-            }
-        }
-
         /**
          * @hide Erase the fields in the Configuration that should be applied
          * by the settings.
