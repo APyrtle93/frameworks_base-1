@@ -638,6 +638,15 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         if (mNavBarModeOn != null) {
             mNavBarModeOn.updateState(mNavBarState);
         }
+
+    private void startOnTheGo() {
+        final ComponentName cn = new ComponentName("com.android.systemui",
+                "com.android.systemui.nameless.onthego.OnTheGoService");
+        final Intent startIntent = new Intent();
+        startIntent.setComponent(cn);
+        startIntent.setAction("start");
+        mContext.startService(startIntent);
+    }
 	
         // Start observing setting changes during
         // dialog shows up
@@ -677,15 +686,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                     silentModeOn ? ToggleAction.State.On : ToggleAction.State.Off);
         }
     }
-
-    private void startOnTheGo() {
-        final ComponentName cn = new ComponentName("com.android.systemui",
-                "com.android.systemui.nameless.onthego.OnTheGoService");
-        final Intent startIntent = new Intent();
-        startIntent.setComponent(cn);
-        startIntent.setAction("start");
-        mContext.startService(startIntent);
-    }    
 
     /** {@inheritDoc} */
     public void onDismiss(DialogInterface dialog) {
