@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2014 SlimRoms Project
- * This code is loosely based on portions of the CyanogenMod Project (Jens Doll) Copyright (C) 2013
- * and the ParanoidAndroid Project source, Copyright (C) 2012.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
+* Copyright (C) 2014 SlimRoms Project
+* This code is loosely based on portions of the CyanogenMod Project (Jens Doll) Copyright (C) 2013
+* and the ParanoidAndroid Project source, Copyright (C) 2012.
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not
+* use this file except in compliance with the License. You may obtain a copy of
+* the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*/
 package com.android.systemui.statusbar.pie;
 
 import android.animation.ValueAnimator;
@@ -28,8 +28,6 @@ import android.graphics.Paint.Style;
 import android.graphics.Point;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -38,23 +36,23 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.util.gesture.EdgeGesturePosition;
 import com.android.internal.util.slim.ButtonsConstants;
 
 import com.android.systemui.R;
+import com.android.systemui.statusbar.BaseStatusBar;
 import com.android.systemui.statusbar.phone.NavigationBarOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This is the pie layout container.
- * <p>
- * This class is responsible for displaying the content of a pie control. And
- * processing the input events from the user.<br>
- * (It handles the events for the snap points, too.)
- */
+* This is the pie layout container.
+* <p>
+* This class is responsible for displaying the content of a pie control. And
+* processing the input events from the user.<br>
+* (It handles the events for the snap points, too.)
+*/
 public class PieView extends View implements View.OnTouchListener {
     public static final String TAG = "PieView";
     public static final boolean DEBUG = false;
@@ -96,8 +94,7 @@ public class PieView extends View implements View.OnTouchListener {
     private EdgeGesturePosition mLayoutDoneForPosition;
 
     private NavigationBarOverlay mNavigationBarOverlay;
-
-    IStatusBarService mStatusBarService;
+    private BaseStatusBar mStatusBar;
     private boolean mPreloadedRecentApps;
 
     private Handler mHandler;
@@ -137,14 +134,14 @@ public class PieView extends View implements View.OnTouchListener {
     };
 
     /**
-     * A {@code PieDrawable} is everything that can get displayed on the pie control.
-     * <p>
-     * This defines the basic geometry of a pie thing and provides the
-     * interface to trigger EdgeGesturePositioning and draw preparations
-     * ({@link #prepare(EdgeGesturePosition, float)}), drawing
-     * ({@link #draw(Canvas, EdgeGesturePosition)}) as well as user interaction
-     * ({@link #interact(float, int)}).
-     */
+* A {@code PieDrawable} is everything that can get displayed on the pie control.
+* <p>
+* This defines the basic geometry of a pie thing and provides the
+* interface to trigger EdgeGesturePositioning and draw preparations
+* ({@link #prepare(EdgeGesturePosition, float)}), drawing
+* ({@link #draw(Canvas, EdgeGesturePosition)}) as well as user interaction
+* ({@link #interact(float, int)}).
+*/
     public abstract static class PieDrawable {
         protected float mStart;
         protected float mSweep;
@@ -181,20 +178,20 @@ public class PieView extends View implements View.OnTouchListener {
     };
 
     /**
-     * A slice can contain drawable content, or can contain {@link PieItem}s which are the
-     * actual end point for user interaction.
-     */
+* A slice can contain drawable content, or can contain {@link PieItem}s which are the
+* actual end point for user interaction.
+*/
     public abstract static class PieSlice extends PieDrawable {
         /**
-         * This is the padding between items within a slice.
-         */
+* This is the padding between items within a slice.
+*/
         public final static float GAP = 3.0f;
 
         /**
-         * The slice will be considerer as important - {@link PieView} will try to keep
-         * these slices on screen, when placing the pie control.
-         * @see PieDrawable#flags
-         */
+* The slice will be considerer as important - {@link PieView} will try to keep
+* these slices on screen, when placing the pie control.
+* @see PieDrawable#flags
+*/
         public final static int IMPORTANT = 0x80;
 
         public float estimateWidth() {
@@ -267,8 +264,8 @@ public class PieView extends View implements View.OnTouchListener {
     private SnapPoint mActiveSnap = null;
 
     /**
-     * Listener interface for snap events on {@link SnapPoint}s.
-     */
+* Listener interface for snap events on {@link SnapPoint}s.
+*/
     public interface OnSnapListener {
         void onSnap(EdgeGesturePosition position);
     }
@@ -279,9 +276,10 @@ public class PieView extends View implements View.OnTouchListener {
     }
     private OnExitListener mOnExitListener = null;
 
-    public PieView(Context context, NavigationBarOverlay nbo) {
+    public PieView(Context context, BaseStatusBar statusBar, NavigationBarOverlay nbo) {
         super(context);
 
+        mStatusBar = statusBar;
         mNavigationBarOverlay = nbo;
         mHandler = new Handler();
         mBackgroundAnimator.addUpdateListener(mUpdateListener);
@@ -302,9 +300,9 @@ public class PieView extends View implements View.OnTouchListener {
     }
 
     /**
-     * Tells the Layout where to show snap points.
-     * @param mask is a mask that corresponds to {@link EdgeGesturePosition}{@code .FLAG}.
-     */
+* Tells the Layout where to show snap points.
+* @param mask is a mask that corresponds to {@link EdgeGesturePosition}{@code .FLAG}.
+*/
     public void setSnapPoints(int mask) {
         mSnapPointMask = mask;
     }
@@ -397,7 +395,7 @@ public class PieView extends View implements View.OnTouchListener {
                 Slog.d(TAG, "onDraw: (" + canvas.getWidth() + "," + canvas.getHeight() + ")");
             }
             if (mActivateStartDebug != 0) {
-                Slog.d(TAG,  "First draw within "
+                Slog.d(TAG, "First draw within "
                         + (SystemClock.uptimeMillis() - mActivateStartDebug) + " ms");
             }
             mActivateStartDebug = 0;
@@ -405,11 +403,9 @@ public class PieView extends View implements View.OnTouchListener {
             if (mShowBackground) {
                 mBackgroundPaint.setAlpha((int) (mBackgroundFraction * mBackgroundTargetAlpha));
                 canvas.drawPaint(mBackgroundPaint);
-                if (mNavigationBarOverlay != null) {
-                    mNavigationBarOverlay.setNavigationBarOverlay(
+                mNavigationBarOverlay.setNavigationBarOverlay(
                         mBackgroundFraction * mBackgroundTargetAlpha / 255,
                         stripAlpha(mBackgroundPaintColor));
-                }
             }
 
             for (int i = 0; i < mSnapPoints.length; i++) {
@@ -465,8 +461,9 @@ public class PieView extends View implements View.OnTouchListener {
         if (mActive) {
             if (action == MotionEvent.ACTION_DOWN) {
                 mPointerId = event.getPointerId(0);
-                preloadRecentApps();
-            } else if (action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_UP) {
+            }
+            if (action == MotionEvent.ACTION_DOWN
+                    || action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_UP) {
                 mActiveSnap = null;
                 for (int i = 0; i < mSnapPoints.length; i++) {
                     if (mSnapPoints[i] != null) {
@@ -504,6 +501,16 @@ public class PieView extends View implements View.OnTouchListener {
                 updateActiveItem(newItem, mLongPressed);
             }
 
+            if ((action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE)
+                    && !mPreloadedRecentApps && mActiveItem != null && mStatusBar != null) {
+                String clickAction = mLongPressed
+                        ? (String) mActiveItem.longTag : (String) mActiveItem.tag;
+                if (ButtonsConstants.ACTION_RECENTS.equals(clickAction)) {
+                    mStatusBar.preloadRecentApps();
+                    mPreloadedRecentApps = true;
+                }
+            }
+
             if (action == MotionEvent.ACTION_UP) {
                 // Check if anything was active
                 if (mActiveSnap != null) {
@@ -515,8 +522,7 @@ public class PieView extends View implements View.OnTouchListener {
                         String clickAction = mLongPressed
                                 ? (String) mActiveItem.longTag : (String) mActiveItem.tag;
                         if (ButtonsConstants.ACTION_RECENTS.equals(clickAction)) {
-                            // Set to false to keep preload alive and block
-                            // cancelPreloadRecentApps() when we exit the view and load recents.
+                            // Prepare preload for next call and block cancelPreload.
                             mPreloadedRecentApps = false;
                         }
                         mActiveItem.onClickCall(mLongPressed);
@@ -528,6 +534,11 @@ public class PieView extends View implements View.OnTouchListener {
             if (action == MotionEvent.ACTION_CANCEL) {
                 PieView.this.exit();
             }
+        }
+        if ((action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP)
+                && mPreloadedRecentApps && mStatusBar != null) {
+            mStatusBar.cancelPreloadRecentApps();
+            mPreloadedRecentApps = false;
         }
         return true;
     }
@@ -565,7 +576,7 @@ public class PieView extends View implements View.OnTouchListener {
 
         long start = SystemClock.uptimeMillis();
         if (mActivateStartDebug != 0) {
-            Slog.d(TAG,  "Layout within " + (start - mActivateStartDebug) + " ms");
+            Slog.d(TAG, "Layout within " + (start - mActivateStartDebug) + " ms");
         }
 
         int viewMask = PieDrawable.VISIBLE | mPosition.FLAG;
@@ -601,7 +612,7 @@ public class PieView extends View implements View.OnTouchListener {
                 estimatedWidth = Math.max(estimatedWidth, slice.estimateWidth());
             }
         }
-        estimatedWidth = estimatedWidth  * mPieScale;
+        estimatedWidth = estimatedWidth * mPieScale;
 
         if (mPosition == EdgeGesturePosition.LEFT || mPosition == EdgeGesturePosition.RIGHT) {
             mCenter.x = mPadding + (int) ((getWidth() - 2 * mPadding) * mPosition.FACTOR);
@@ -621,7 +632,7 @@ public class PieView extends View implements View.OnTouchListener {
             mCenter.y = mPadding + (int) ((getHeight() - 2 * mPadding) * mPosition.FACTOR);
         }
 
-        Slog.d(TAG,  "Layout finished within " + (SystemClock.uptimeMillis() - start) + " ms");
+        Slog.d(TAG, "Layout finished within " + (SystemClock.uptimeMillis() - start) + " ms");
     }
 
     @Override
@@ -680,9 +691,7 @@ public class PieView extends View implements View.OnTouchListener {
             return;
         }
         mBackgroundAnimator.cancel();
-        if (mNavigationBarOverlay != null && mShowBackground) {
-            mNavigationBarOverlay.setNavigationBarOverlay(0.0f, 0);
-        }
+        mNavigationBarOverlay.setNavigationBarOverlay(0.0f, 0);
 
         mActiveSnap = null;
         for (int i = 0; i < mSnapPoints.length; i++) {
@@ -691,7 +700,6 @@ public class PieView extends View implements View.OnTouchListener {
             }
         }
 
-        cancelPreloadRecentApps();
         updateActiveItem(null, false);
         mActive = false;
         if (mOnExitListener != null) {
@@ -722,41 +730,4 @@ public class PieView extends View implements View.OnTouchListener {
         return Color.rgb(Color.red(color), Color.green(color), Color.blue(color));
     }
 
-    private void preloadRecentApps() {
-        mPreloadedRecentApps = true;
-        try {
-            IStatusBarService statusbar = getStatusBarService();
-            if (statusbar != null) {
-                statusbar.preloadRecentApps();
-            }
-        } catch (RemoteException e) {
-            Slog.e(TAG, "RemoteException when preloading recent apps", e);
-            // Re-acquire status bar service next time it is needed.
-            mStatusBarService = null;
-        }
-    }
-
-    private void cancelPreloadRecentApps() {
-        if (mPreloadedRecentApps) {
-            mPreloadedRecentApps = false;
-            try {
-                IStatusBarService statusbar = getStatusBarService();
-                if (statusbar != null) {
-                    statusbar.cancelPreloadRecentApps();
-                }
-            } catch (RemoteException e) {
-                Slog.e(TAG, "RemoteException when showing recent apps", e);
-                // Re-acquire status bar service next time it is needed.
-                mStatusBarService = null;
-            }
-        }
-    }
-
-    IStatusBarService getStatusBarService() {
-        if (mStatusBarService == null) {
-            mStatusBarService = IStatusBarService.Stub.asInterface(
-                    ServiceManager.getService("statusbar"));
-        }
-        return mStatusBarService;
-    }
 }
