@@ -654,6 +654,21 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
     }	
 
+    private void prepareDialog() {
+        refreshSilentMode();
+        mAirplaneModeOn.updateState(mAirplaneState);
+        mMobileDataOn.updateState(dataEnabled() ? ToggleAction.State.On : ToggleAction.State.Off);
+        mAdapter.notifyDataSetChanged();
+        mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+
+        mDialog.setTitle(R.string.global_actions);
+
+        if (mShowSilentToggle) {
+            IntentFilter filter = new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION);
+            mContext.registerReceiver(mRingerModeReceiver, filter);
+        }
+    }
+
     private void refreshSilentMode() {
         if (!mHasVibrator) {
             final boolean silentModeOn =
