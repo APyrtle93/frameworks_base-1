@@ -331,7 +331,7 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
 
     private void setupContainer() {
         if (mPieContainer == null) {
-            mPieContainer = new PieView(mContext, mStatusBar.mNavigationBarOverlay);
+            mPieContainer = new PieView(mContext, mStatusBar, mNavigationBarOverlay);
             mPieContainer.setOnSnapListener(this);
             mPieContainer.setOnExitListener(this);
 
