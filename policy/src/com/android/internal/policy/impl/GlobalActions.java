@@ -235,40 +235,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         }
         mItems = new ArrayList<Action>();
 
-        // next: On-The-Go, if enabled
-        boolean showOnTheGo = Settings.System.getBoolean(mContext.getContentResolver(),
-                Settings.System.POWER_MENU_ONTHEGO_ENABLED, false);
-        if (showOnTheGo) {
-            mItems.add(
-                new SinglePressAction(com.android.internal.R.drawable.ic_lock_onthego,
-                        R.string.global_action_onthego) {
-
-                        public void onPress() {
-                            startOnTheGo();
-                        }
-
-                        public boolean onLongPress() {
-                            return false;
-                        }
-
-                        public boolean showDuringKeyguard() {
-                            return true;
-                        }
-
-                        public boolean showBeforeProvisioning() {
-                            return true;
-                        }
-                    }
-            );
-        }
-
-        // next: airplane mode
-        if (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.AIRPLANE_MODE_IN_POWER_MENU, 0) != 0) {
-            mItems.add(mAirplaneModeOn);
-        }
-
-        // next: bug report, if enabled
+        // bug report, if enabled
         if (Settings.Global.getInt(mContext.getContentResolver(),
                 Settings.Global.BUGREPORT_IN_POWER_MENU, 0) != 0 && isCurrentUserOwner()) {
             mItems.add(
@@ -639,34 +606,10 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
             mNavBarModeOn.updateState(mNavBarState);
         }
 
-    private void startOnTheGo() {
-        final ComponentName cn = new ComponentName("com.android.systemui",
-                "com.android.systemui.nameless.onthego.OnTheGoService");
-        final Intent startIntent = new Intent();
-        startIntent.setComponent(cn);
-        startIntent.setAction("start");
-        mContext.startService(startIntent);
-    }
-	
         // Start observing setting changes during
         // dialog shows up
         mSettingsObserver.observe();
 
-        mAdapter.notifyDataSetChanged();
-        mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
-
-        mDialog.setTitle(R.string.global_actions);
-
-        if (mShowSilentToggle) {
-            IntentFilter filter = new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION);
-            mContext.registerReceiver(mRingerModeReceiver, filter);
-        }
-    }	
-
-    private void prepareDialog() {
-        refreshSilentMode();
-        mAirplaneModeOn.updateState(mAirplaneState);
-        mMobileDataOn.updateState(dataEnabled() ? ToggleAction.State.On : ToggleAction.State.Off);
         mAdapter.notifyDataSetChanged();
         mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
 
