@@ -483,15 +483,12 @@ public abstract class BaseStatusBar extends SystemUI implements
     }
 
     private void initPieController() {
-        if (mEdgeGestureManager == null) {
-            mEdgeGestureManager = EdgeGestureManager.getInstance();
-        }
         if (mNavigationBarOverlay == null) {
             mNavigationBarOverlay = new NavigationBarOverlay();
         }
         if (mPieController == null) {
-            mPieController = new PieController(
-                    mContext, this, mEdgeGestureManager, mNavigationBarOverlay);
+            mPieController = new PieController(mContext);
+            mPieController.attachStatusBar(this);
             addNavigationBarCallback(mPieController);
         }
     }
