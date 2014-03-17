@@ -1,20 +1,20 @@
 /*
- * Copyright (C) 2014 SlimRoms Project
- * This code is loosely based on portions of the CyanogenMod Project (Jens Doll) Copyright (C) 2013
- * and the ParanoidAndroid Project source, Copyright (C) 2012.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
+* Copyright (C) 2014 SlimRoms Project
+* This code is loosely based on portions of the CyanogenMod Project (Jens Doll) Copyright (C) 2013
+* and the ParanoidAndroid Project source, Copyright (C) 2012.
+*
+* Licensed under the Apache License, Version 2.0 (the "License"); you may not
+* use this file except in compliance with the License. You may obtain a copy of
+* the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+* WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+* License for the specific language governing permissions and limitations under
+* the License.
+*/
 package com.android.systemui.statusbar.policy;
 
 import android.app.Activity;
@@ -71,6 +71,7 @@ import com.android.internal.util.slim.ImageHelper;
 import com.android.internal.util.slim.SlimActions;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar;
+import com.android.systemui.statusbar.phone.NavigationBarOverlay;
 import com.android.systemui.statusbar.pie.PieItem;
 import com.android.systemui.statusbar.pie.PieView;
 import com.android.systemui.statusbar.pie.PieView.PieDrawable;
@@ -81,11 +82,11 @@ import com.android.systemui.statusbar.pie.PieSysInfo;
 import java.util.ArrayList;
 
 /**
- * Controller class for the default pie control.
- * <p>
- * This class is responsible for setting up the pie control, activating it, and defining and
- * executing the actions that can be triggered by the pie control.
- */
+* Controller class for the default pie control.
+* <p>
+* This class is responsible for setting up the pie control, activating it, and defining and
+* executing the actions that can be triggered by the pie control.
+*/
 public class PieController implements BaseStatusBar.NavigationBarCallback, PieView.OnExitListener,
         PieView.OnSnapListener, PieItem.PieOnClickListener, PieItem.PieOnLongClickListener {
     private static final String TAG = "PieController";
@@ -111,6 +112,7 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
     private boolean mIsDetaching = false;
 
     private BaseStatusBar mStatusBar;
+    private NavigationBarOverlay mNavigationBarOverlay;
     private Vibrator mVibrator;
     private IWindowManager mWm;
     private WindowManager mWindowManager;
@@ -220,6 +222,9 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PIE_MENU), false, this,
                     UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.PIE_IME_CONTROL), false, this,
+                    UserHandle.USER_ALL);
         }
 
         @Override
@@ -268,8 +273,11 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
         }
     };
 
-    public PieController(Context context) {
+    public PieController(Context context, BaseStatusBar statusBar,
+            EdgeGestureManager pieManager, NavigationBarOverlay nbo) {
         mContext = context;
+        mStatusBar = statusBar;
+        mNavigationBarOverlay = nbo;
 
         mVibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
         mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
@@ -280,7 +288,7 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
                     (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         }
 
-        mPieManager = EdgeGestureManager.getInstance();
+        mPieManager = pieManager;
         mPieManager.setEdgeGestureActivationListener(mPieActivationListener);
     }
 
@@ -325,13 +333,9 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
         mPieContainer = null;
     }
 
-    public void attachStatusBar(BaseStatusBar statusBar) {
-        mStatusBar = statusBar;
-    }
-
     private void setupContainer() {
         if (mPieContainer == null) {
-            mPieContainer = new PieView(mContext, mStatusBar.mNavigationBarOverlay);
+            mPieContainer = new PieView(mContext, mStatusBar, mNavigationBarOverlay);
             mPieContainer.setOnSnapListener(this);
             mPieContainer.setOnExitListener(this);
 
@@ -341,12 +345,12 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
             }
 
             /**
-             * Add intent actions to listen on it.
-             * Battery change for the battery,
-             * screen off to get rid of the pie,
-             * apps available to check if apps on external sdcard
-             * are available and reconstruct the button icons
-             */
+* Add intent actions to listen on it.
+* Battery change for the battery,
+* screen off to get rid of the pie,
+* apps available to check if apps on external sdcard
+* are available and reconstruct the button icons
+*/
             IntentFilter filter = new IntentFilter();
             filter.addAction(Intent.ACTION_BATTERY_CHANGED);
             filter.addAction(Intent.ACTION_SCREEN_OFF);
@@ -415,9 +419,16 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
             sensitivity = EdgeServiceConstants.SENSITIVITY_DEFAULT;
         }
 
+        int flags = mPieTriggerSlots & mPieTriggerMask;
+
+        if (Settings.System.getIntForUser(resolver,
+                Settings.System.PIE_IME_CONTROL, 1,
+                UserHandle.USER_CURRENT) == 1) {
+            flags |= EdgeServiceConstants.IME_CONTROL;
+        }
+
         mPieManager.updateEdgeGestureActivationListener(mPieActivationListener,
-                sensitivity<<EdgeServiceConstants.SENSITIVITY_SHIFT
-                | mPieTriggerSlots & mPieTriggerMask);
+                sensitivity<<EdgeServiceConstants.SENSITIVITY_SHIFT | flags);
     }
 
     private void setupNavigationItems() {
