@@ -333,4 +333,9 @@ interface IWindowManager
      * @hide
      */
     int getSystemUIVisibility();
+
+    /** FLOAT VIEW **/
+    Rect getAppFullscreenViewRect();
+    Rect getFloatViewRect();
+    void notifyFloatActivityTouched(IBinder token, boolean force);
 }
