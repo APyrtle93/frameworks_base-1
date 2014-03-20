@@ -1098,7 +1098,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             addGestureAnywhereView();
             /* OSELab: GestureAnywhere - END */
         } else {
-            addActiveDisplayView();			
+            addActiveDisplayView();
+            addAppCircleSidebar();
         }
 
         addSidebarView();
