@@ -293,5 +293,6 @@
     <string name="accessibility_ime_navigation_right">Cursor right</string>
 
     <string name="app_stop_item_title">Kill app</string>
+    <string name="app_float_item_title">Float view</string>
 
 </resources>

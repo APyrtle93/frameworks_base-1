@@ -677,6 +677,18 @@ public class Intent implements Parcelable, Cloneable {
      * @hide
      */
     public static final String ACTION_BATTERY_SERVICES = "android.intent.action.BATTERY_SERVICES";
+     * Registered and foreground services only
+     * @hide
+     */
+    public static final String ACTION_ACTIVITY_LAUNCH_DETECTOR =
+            "android.intent.action.ACTIVITY_LAUNCH_DETECTOR";
+
+    /**
+     * Registered and foreground services only
+     * @hide
+     */
+    public static final String ACTION_ACTIVITY_END_DETECTOR =
+            "android.intent.action.ACTIVITY_END_DETECTOR";
 
     /**
      * Activity Action: Creates a shortcut.
@@ -3646,11 +3658,13 @@ public class Intent implements Parcelable, Cloneable {
      * @hide
      */
     public static final int FLAG_ACTIVITY_SPLIT_VIEW = 0x00002000;
-    /**	
+
+    /**
      * If set, this intent will always match start up as a floating window
-     * in mutil window scenarios.
+     * in multi window scenarios.
      */
-    public static final int FLAG_FLOATING_WINDOW = 0x00002000;
+    public static final int FLAG_FLOATING_WINDOW = 0x00001000;
+
     /**
      * If set, when sending a broadcast only registered receivers will be
      * called -- no BroadcastReceiver components will be launched.

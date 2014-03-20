@@ -2816,7 +2816,12 @@ public final class ActivityThread {
                 r.stopped = false;
                 r.state = null;
             } catch (Exception e) {
-                // Unable to resume activity
+                /*if (!mInstrumentation.onException(r.activity, e)) {
+                    throw new RuntimeException(
+                        "Unable to resume activity "
+                        + r.intent.getComponent().toShortString()
+                        + ": " + e.toString(), e);
+                }*/
             }
         }
         return r;
@@ -4986,7 +4991,9 @@ public final class ActivityThread {
                         // everyone about it.
                         if (mPendingConfiguration == null ||
                                 mPendingConfiguration.isOtherSeqNewer(newConfig)) {
-                            mPendingConfiguration = newConfig; 
+
+                            mPendingConfiguration = newConfig;
+
                             sendMessage(H.CONFIGURATION_CHANGED, newConfig);
                         }
                     }

@@ -2643,12 +2643,6 @@ public final class Settings {
         public static final String LOCKSCREEN_SEE_THROUGH = "lockscreen_see_through";
 
         /**
-         * Whether the lockscreen should be completely disabled.
-         * @hide
-         */
-        public static final String LOCKSCREEN_DISABLED = "lockscreen.disabled";
-
-        /**
          * Whether to display app circle sidebar
          * @hide
          */
