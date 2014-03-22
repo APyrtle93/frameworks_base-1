@@ -87,6 +87,9 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.File;
+
+import com.android.internal.app.ThemeUtils;
+
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -146,6 +149,7 @@ public class NotificationManagerService extends INotificationManager.Stub
     private static final String ENABLED_NOTIFICATION_LISTENERS_SEPARATOR = ":";
 
     final Context mContext;
+    Context mUiContext;
     final IActivityManager mAm;
     final UserManager mUserManager;
     final IBinder mForegroundToken = new Binder();
@@ -1364,6 +1368,13 @@ public class NotificationManagerService extends INotificationManager.Stub
         }
     };
 
+    private BroadcastReceiver mThemeChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mUiContext = null;
+        }
+    };
+
     private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1692,6 +1703,7 @@ public class NotificationManagerService extends INotificationManager.Stub
         qhObserver.observe();
         mSettingsObserver = new SettingsObserver(mHandler);
         mSettingsObserver.observe();
+        ThemeUtils.registerThemeChangeReceiver(mContext, mThemeChangeReceiver);
 
         // spin up NotificationScorers
         String[] notificationScorerNames = resources.getStringArray(
@@ -2681,6 +2693,13 @@ public class NotificationManagerService extends INotificationManager.Stub
             }
         }
         return -1;
+    }
+
+    private Context getUiContext() {
+        if (mUiContext == null) {
+            mUiContext = ThemeUtils.createUiContext(mContext);
+        }
+        return mUiContext != null ? mUiContext : mContext;
     }
 
     private void updateNotificationPulse() {
