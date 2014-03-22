@@ -157,6 +157,8 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     protected int mCurrentUserId = 0;
 
+    protected FrameLayout mStatusBarContainer;
+
     protected int mLayoutDirection = -1; // invalid
     private Locale mLocale;
     protected boolean mUseHeadsUp = false;
@@ -203,8 +205,6 @@ public abstract class BaseStatusBar extends SystemUI implements
     // Pie Control
     protected PieController mPieController;
     public NavigationBarOverlay mNavigationBarOverlay;
-
-    protected FrameLayout mStatusBarContainer;
 
     // UI-specific methods
 
