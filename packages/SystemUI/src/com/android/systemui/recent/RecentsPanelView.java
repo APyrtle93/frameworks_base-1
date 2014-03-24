@@ -92,12 +92,8 @@ import com.android.systemui.statusbar.phone.PhoneStatusBar;
 import com.android.internal.util.MemInfoReader;
 
 import java.util.ArrayList;
-<<<<<<< HEAD
-
-=======
 import java.util.HashSet;
 import java.util.Set;
->>>>>>> 7a355a5... AOSB Recent App iPhoney UI
 import java.util.List;
 import java.io.BufferedReader;
 import java.io.FileReader;
