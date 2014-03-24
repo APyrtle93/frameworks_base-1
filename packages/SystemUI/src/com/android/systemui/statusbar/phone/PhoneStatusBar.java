@@ -1398,7 +1398,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         updateBatteryIcons();
 
         mNetworkController.setListener(this);
-        updateCarrierAndWifiLabelVisibility(true);        
+        updateCarrierAndWifiLabelVisibility(true);
 
         return mStatusBarView;
     }
@@ -1943,7 +1943,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         updateCarrierAndWifiLabelVisibility(state);
         updateNotificationShortcutsVisibility(!state);
     }
-
+	
     protected void updateCarrierAndWifiLabelVisibility(boolean forceHide) {
         if ((mHideLabels == 3) || mCarrierAndWifiView == null) {
             return;
