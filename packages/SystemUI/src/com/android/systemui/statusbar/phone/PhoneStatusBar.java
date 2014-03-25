@@ -44,6 +44,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
+import android.content.res.CustomTheme;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Canvas;
@@ -98,6 +99,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -297,8 +299,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private int mHideLabels;
     private boolean mCarrierAndWifiViewBlocked = false;
 
-    private boolean mRecreating = false;
-
     // position
     int[] mPositionTmp = new int[2];
     boolean mExpandedVisible;
@@ -345,6 +345,12 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
     int[] mAbsPos = new int[2];
     Runnable mPostCollapseCleanup = null;
+
+    // last theme that was applied in order to detect theme change (as opposed
+    // to some other configuration change).
+    CustomTheme mCurrentTheme;
+
+    private boolean mRecreating = false;
 
     // status bar brightness control
     private boolean mBrightnessControl;
@@ -956,7 +962,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 .getDefaultDisplay();
         updateDisplaySize();
 
-        mCurrUiThemeMode = mContext.getResources().getConfiguration().uiThemeMode;
+        CustomTheme currentTheme = mContext.getResources().getConfiguration().customTheme;
+        if (currentTheme != null) {
+            mCurrentTheme = (CustomTheme)currentTheme.clone();
+        }
 
         super.start(); // calls createAndAddWindows()
 
@@ -1070,6 +1079,20 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         // Setup pie container if enabled
         attachPieContainer(isPieEnabled());
+        if (mNavigationBarView == null && !mRecreating) {
+            mNavigationBarView =
+                (NavigationBarView) View.inflate(context, R.layout.navigation_bar, null);
+        }
+
+        mNavigationBarView.setDisabledFlags(mDisabled);
+        mNavigationBarView.setBar(this);
+        mNavigationBarView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                checkUserAutohide(v, event);
+                return false;
+            }
+        });
 
         // figure out which pixel-format to use for the status bar.
         mPixelFormat = PixelFormat.OPAQUE;
@@ -1522,6 +1545,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         return lp;
     }
 
+    void onBarViewDetached() {
+     //   WindowManagerImpl.getDefault().removeView(mStatusBarWindow);
+    }
+
     @Override
     protected void updateSearchPanel(boolean navigationBarCanMove,
             ArrayList<ButtonConfig> buttonConfig) {
@@ -1693,7 +1720,13 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
     private void repositionNavigationBar() {
         if (mNavigationBarView == null || !mNavigationBarView.isAttachedToWindow()) return;
-
+ 	
+        CustomTheme newTheme = mContext.getResources().getConfiguration().customTheme;
+        if (newTheme != null &&
+                (mCurrentTheme == null || !mCurrentTheme.equals(newTheme))) {
+            // Nevermind, this will be re-created
+            return;
+        }
         prepareNavigationBarView();
 
         mWindowManager.updateViewLayout(mNavigationBarView, getNavigationBarLayoutParams());
@@ -3328,8 +3361,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         // until status bar window is attached to the window manager,
         // because...  well, what's the point otherwise?  And trying to
         // run a ticker without being attached will crash!
-        if (n.getNotification().tickerText != null
-                    && mStatusBarWindow.getWindowToken() != null) {
+        if (n.getNotification().tickerText != null && mStatusBarContainer.getWindowToken() != null) {
             if (0 == (mDisabled & (StatusBarManager.DISABLE_NOTIFICATION_ICONS
                             | StatusBarManager.DISABLE_NOTIFICATION_TICKER))) {
                 mTicker.addEntry(n);
