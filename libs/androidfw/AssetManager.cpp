@@ -194,7 +194,7 @@ bool AssetManager::addAssetPath(const String8& path, void** cookie, bool asSkin)
     for (size_t i=0; i<mAssetPaths.size(); i++) {
         if (mAssetPaths[i].path == ap.path) {
             if (cookie) {
-                *cookie = static_cast<int32_t>(i+1);
+                *cookie = (void*)(i+1);
             }
             return true;
         }
@@ -207,7 +207,7 @@ bool AssetManager::addAssetPath(const String8& path, void** cookie, bool asSkin)
 
     // new paths are always added at the end
     if (cookie) {
-        *cookie = static_cast<int32_t>(mAssetPaths.size());
+        *cookie = (void*)mAssetPaths.size();
     }
 
     // add overlay packages for /system/framework; apps are handled by the
