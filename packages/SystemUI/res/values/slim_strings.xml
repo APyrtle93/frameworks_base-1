@@ -242,5 +242,6 @@
     <string name="onthego_service_toggle">Automatically restart service</string>	
     <string name="onthego_front_camera">Use front camera</string>
     <string name="onthego_service_toggle">Automatically restart service</string>
+    <string name="on_the_go_disabled">On-The-Go is disabled</string>
 
 </resources>

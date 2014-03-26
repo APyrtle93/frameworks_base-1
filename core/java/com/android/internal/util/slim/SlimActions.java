@@ -87,7 +87,8 @@ public class SlimActions {
                         && !action.equals(ButtonsConstants.ACTION_NOTIFICATIONS)
                         && !action.equals(ButtonsConstants.ACTION_SMART_PULLDOWN)
                         && !action.equals(ButtonsConstants.ACTION_THEME_SWITCH)
-                        && !action.equals(ButtonsConstants.ACTION_TORCH)) {
+                        && !action.equals(ButtonsConstants.ACTION_TORCH)
+                        && !action.equals(ButtonsConstants.TILE_ONTHEGO)) {
                     try {
                         barService.collapsePanels();
                     } catch (RemoteException ex) {
@@ -254,6 +255,15 @@ public class SlimActions {
                 }
                 try {
                     barService.toggleSmartPulldown();
+                } catch (RemoteException e) {
+                }
+                return;
+            } else if (action.equals(ButtonsConstants.TILE_ONTHEGO)) {
+                if (isKeyguardShowing && isKeyguardSecure) {
+                    return;
+                }
+                try {
+                    barService.toggleOnTheGo();
                 } catch (RemoteException e) {
                 }
                 return;
