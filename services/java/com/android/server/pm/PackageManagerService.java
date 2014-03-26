@@ -1132,8 +1132,7 @@ public class PackageManagerService extends IPackageManager.Stub {
                 ApplicationInfo.FLAG_SYSTEM|ApplicationInfo.FLAG_PRIVILEGED);
         mSettings.addSharedUserLPw("android.uid.shell", SHELL_UID,
                 ApplicationInfo.FLAG_SYSTEM|ApplicationInfo.FLAG_PRIVILEGED);
-        mSettings.addSharedUserLPw("com.tmobile.thememanager", THEME_MAMANER_GUID,
-                ApplicationInfo.FLAG_SYSTEM|ApplicationInfo.FLAG_PRIVILEGED);
+        mSettings.addSharedUserLPw("com.tmobile.thememanager", THEME_MAMANER_GUID, ApplicationInfo.FLAG_SYSTEM);
 
         mPm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         
