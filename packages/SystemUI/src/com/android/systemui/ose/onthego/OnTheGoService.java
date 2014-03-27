@@ -1,21 +1,18 @@
 /*
-* <!--
-*    Copyright (C) 2014 The OSE Project
-*
-*    This program is free software: you can redistribute it and/or modify
-*    it under the terms of the GNU General Public License as published by
-*    the Free Software Foundation, either version 3 of the License, or
-*    (at your option) any later version.
-*
-*    This program is distributed in the hope that it will be useful,
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*    GNU General Public License for more details.
-*
-*    You should have received a copy of the GNU General Public License
-*    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-* -->
-*/
+ * Copyright (C) 2014 The OSE Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.systemui.ose.onthego;
 
@@ -33,10 +30,8 @@ import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.TextureView;
@@ -45,13 +40,11 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.android.internal.util.ose.NamelessUtils;
-import com.android.internal.util.ose.constants.FlashLightConstants;
-import com.android.internal.util.ose.listeners.ShakeDetector;
 import com.android.systemui.R;
 
 import java.io.IOException;
 
-public class OnTheGoService extends Service implements ShakeDetector.Listener {
+public class OnTheGoService extends Service {
 
     private static final String  TAG   = "OnTheGoService";
     private static final boolean DEBUG = false;
@@ -78,8 +71,6 @@ public class OnTheGoService extends Service implements ShakeDetector.Listener {
     private FrameLayout         mOverlay;
     private Camera              mCamera;
     private NotificationManager mNotificationManager;
-    private SensorManager       mSensorManager;
-    private ShakeDetector       mShakeDetector;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -98,10 +89,6 @@ public class OnTheGoService extends Service implements ShakeDetector.Listener {
         registerReceiver(mAlphaReceiver, alphaFilter);
         final IntentFilter cameraFilter = new IntentFilter(ACTION_TOGGLE_CAMERA);
         registerReceiver(mCameraReceiver, cameraFilter);
-
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mShakeDetector = new ShakeDetector(this);
-        mShakeDetector.start(mSensorManager);
     }
 
     private void unregisterReceivers() {
@@ -111,12 +98,6 @@ public class OnTheGoService extends Service implements ShakeDetector.Listener {
         try {
             unregisterReceiver(mCameraReceiver);
         } catch (Exception ignored) { }
-
-        if (mShakeDetector != null) {
-            mShakeDetector.stop();
-            mShakeDetector = null;
-            mSensorManager = null;
-        }
     }
 
     private final BroadcastReceiver mAlphaReceiver = new BroadcastReceiver() {
@@ -407,25 +388,5 @@ public class OnTheGoService extends Service implements ShakeDetector.Listener {
             Log.e(TAG, msg);
         }
     }
-
-    private final        Object  mShakeLock     = new Object();
-    private final static int     SHAKE_TIMEOUT  = 1000;
-    private              boolean mIsShakeLocked = false;
-
-    @Override
-    public void hearShake() {
-        synchronized (mShakeLock) {
-            if (!mIsShakeLocked) {
-                final Intent intent = new Intent(FlashLightConstants.ACTION_TOGGLE_STATE);
-                sendBroadcastAsUser(intent, UserHandle.CURRENT);
-                mIsShakeLocked = true;
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mIsShakeLocked = false;
-                    }
-                }, SHAKE_TIMEOUT);
-            }
-        }
-    }
 }
+
