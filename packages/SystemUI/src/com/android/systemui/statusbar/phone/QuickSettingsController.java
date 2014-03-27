@@ -16,6 +16,7 @@
 
 package com.android.systemui.statusbar.phone;
 
+<<<<<<< HEAD
 import static com.android.internal.util.slim.QSConstants.TILES_DEFAULT;
 import static com.android.internal.util.slim.QSConstants.DYNAMIC_TILES_DEFAULT;
 import static com.android.internal.util.slim.QSConstants.TILE_AIRPLANE;
@@ -118,8 +119,12 @@ import com.android.systemui.quicksettings.VolumeTile;
 import com.android.systemui.quicksettings.WiFiTile;
 import com.android.systemui.quicksettings.WifiAPTile;
 import com.android.systemui.quicksettings.RebootTile;
+import com.android.systemui.quicksettings.Weather;
+<<<<<<< HEAD
+=======
+import com.android.systemui.quicksettings.FastChargeTile;
 import com.android.systemui.quicksettings.OnTheGoTile;
-
+>>>>>>> fcc68e0... Squash in the latest from Nameless ROM
 import com.android.systemui.R;
 
 import java.io.File;
@@ -277,8 +282,13 @@ public class QuickSettingsController {
                 WeatherDialog();
             } else if (tile.equals(TILE_INTERNALMEMORY)) {
                 qs = new InternalMemory(mContext, this);
+<<<<<<< HEAD
+=======
+            } else if (tile.contains(TILE_FCHARGE)) {
+                qs = new FastChargeTile(mContext, this);
             } else if (tile.contains(TILE_ONTHEGO)) {
                 qs = new OnTheGoTile(mContext, this);
+>>>>>>> fcc68e0... Squash in the latest from Nameless ROM
             }
 
             if (qs != null) {
