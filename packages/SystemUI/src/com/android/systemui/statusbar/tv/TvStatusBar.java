@@ -110,10 +110,6 @@ public class TvStatusBar extends BaseStatusBar {
     public void toggleSmartPulldown() {
     }
 
-    @Override // CommandQueue
-    public void toggleOnTheGo() {
-    }
-
     @Override
     protected void createAndAddWindows() {
     }

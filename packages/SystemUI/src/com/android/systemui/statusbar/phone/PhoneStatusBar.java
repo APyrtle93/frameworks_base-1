@@ -171,7 +171,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private static final int MSG_FLIP_TO_NOTIFICATION_PANEL = 1004;
     private static final int MSG_FLIP_TO_QS_PANEL = 1005;
     private static final int MSG_SMART_PULLDOWN = 1006;
-    private static final int MSG_ON_THE_GO = 1007;
     // 1020-1030 reserved for BaseStatusBar
 
     private static final boolean CLOSE_PANEL_WHEN_EMPTIED = true;
@@ -3165,15 +3164,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
         mHandler.removeMessages(MSG_SMART_PULLDOWN);
         mHandler.sendEmptyMessage(MSG_SMART_PULLDOWN);
-    }
-
-    @Override  // CommandQueue
-    public void toggleOnTheGo() {
-        int OnTheGo = Settings.System.getIntForUser(
-                mContext.getContentResolver(), Settings.System.POWER_MENU_ONTHEGO_ENABLED,
-                0, UserHandle.USER_CURRENT);
-        mHandler.removeMessages(MSG_ON_THE_GO);
-        mHandler.sendEmptyMessage(MSG_ON_THE_GO);
     }
 
     private int computeBarMode(int oldVis, int newVis, BarTransitions transitions,
