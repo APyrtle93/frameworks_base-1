@@ -272,9 +272,6 @@ public class QuickSettingsController {
                 qs = new CustomTile(mContext, this, findCustomKey(tile));
             } else if (tile.contains(TILE_CONTACT)) {
                 qs = new ContactTile(mContext, this, findCustomKey(tile));
-            } else if (tile.equals(TILE_WEATHER)) {
-                qs = new Weather(mContext, this, mHandler);
-                WeatherDialog();
             } else if (tile.equals(TILE_INTERNALMEMORY)) {
                 qs = new InternalMemory(mContext, this);
             } else if (tile.contains(TILE_ONTHEGO)) {
