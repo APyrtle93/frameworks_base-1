@@ -33,9 +33,6 @@ import com.android.systemui.statusbar.phone.QuickSettingsController;
 
 public class QuietHoursTile extends QuickSettingsTile {
 
-    private static final String SCHEDULE_SERVICE_COMMAND =
-            "com.android.settings.slim.service.SCHEDULE_SERVICE_COMMAND";
-
     private boolean mEnabled;
 
     public QuietHoursTile(Context context, QuickSettingsController qsc) {
@@ -77,12 +74,6 @@ public class QuietHoursTile extends QuickSettingsTile {
     public void updateResources() {
         updateTile();
         super.updateResources();
-    }
-
-    private void autoSmsIntentBroadcast(Context context) {
-        Intent scheduleSms = new Intent();
-        scheduleSms.setAction(SCHEDULE_SERVICE_COMMAND);
-        context.sendBroadcast(scheduleSms);
     }
 
     private synchronized void updateTile() {
