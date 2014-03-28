@@ -1076,15 +1076,9 @@ public class Activity extends ContextThemeWrapper
     }
 
     /**
-<<<<<<< HEAD
-     * Called after {@link #onCreate} &mdash; or after {@link #onRestart} when  
-     * the activity had been stopped, but is now again being displayed to the 
-	 * user.  It will be followed by {@link #onResume}.
-=======
      * Called after {@link #onCreate} &mdash; or after {@link #onRestart} when
      * the activity had been stopped, but is now again being displayed to the
      * user.  It will be followed by {@link #onResume}.
->>>>>>> a842dc4... Base: implement Floating window multitasking
      *
      * <p><em>Derived classes must call through to the super class's
      * implementation of this method.  If they do not, an exception will be
@@ -2336,10 +2330,6 @@ public class Activity extends ContextThemeWrapper
             finish();
             return true;
         }
-<<<<<<< HEAD
-        
-=======
->>>>>>> a842dc4... Base: implement Floating window multitasking
         return false;
     }
     
@@ -5642,10 +5632,8 @@ public class Activity extends ContextThemeWrapper
         mWindowManager = mWindow.getWindowManager();
         mCurrentConfig = config;
 
-        int mHaloEnabled = (Settings.System.getInt(getContentResolver(), Settings.System.HALO_ENABLED, 0));
-
-        if ((intent.getFlags() & Intent.FLAG_ACTIVITY_SPLIT_VIEW) != 0 && mHaloEnabled != 1) {
-            final IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
+        if (((intent.getFlags() & Intent.FLAG_ACTIVITY_SPLIT_VIEW) != 0)
+            && !mWindow.mIsFloatingWindow) {
             updateSplitViewMetrics(true);
         }		
     }
@@ -5855,7 +5843,9 @@ public class Activity extends ContextThemeWrapper
     
     final void performRestart() {
         mFragments.noteStateNotSaved();
-		updateSplitViewMetrics(false);
+        if (!mWindow.mIsFloatingWindow) {
+            updateSplitViewMetrics(false);
+        }
 
         if (mStopped) {
             mStopped = false;
