@@ -28,6 +28,7 @@ import android.widget.*;
 
 import com.android.systemui.R;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class AppCircleSidebar extends FrameLayout implements PackageAdapter.OnCircleItemClickListener,
@@ -49,7 +50,10 @@ public class AppCircleSidebar extends FrameLayout implements PackageAdapter.OnCi
     private PackageAdapter mPackageAdapter;
     private Context mContext;
     private boolean mFirstTouch = false;
+    private boolean mFloatingWindow = false;
     private SettingsObserver mSettingsObserver;
+    private ArrayList<String> mAppRunning;
+    private ArrayList<String> mAppOpening;
 
     private PopupMenu mPopup;
     private WindowManager mWM;
@@ -74,9 +78,18 @@ public class AppCircleSidebar extends FrameLayout implements PackageAdapter.OnCi
         super.onFinishInflate();
 
         IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_ACTIVITY_LAUNCH_DETECTOR);
+        filter.addAction(Intent.ACTION_ACTIVITY_END_DETECTOR);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(ACTION_HIDE_APP_CONTAINER);
         mContext.registerReceiver(mBroadcastReceiver, filter);
+
+        filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        filter.addDataScheme("package");
+        getContext().registerReceiver(mAppChangeReceiver, filter);
 
         mCircleListView = (CircleListView) findViewById(R.id.circle_list);
         mPackageAdapter = new PackageAdapter(mContext);
@@ -88,6 +101,8 @@ public class AppCircleSidebar extends FrameLayout implements PackageAdapter.OnCi
         mCircleListView.setVisibility(View.GONE);
         createAnimatimations();
         mSettingsObserver = new SettingsObserver(new Handler());
+        mAppRunning = new ArrayList<String>();
+        mAppOpening = new ArrayList<String>();
     }
 
     @Override
@@ -346,6 +361,20 @@ public class AppCircleSidebar extends FrameLayout implements PackageAdapter.OnCi
         }
     }
 
+    private final BroadcastReceiver mAppChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Intent.ACTION_PACKAGE_ADDED)
+                    || action.equals(Intent.ACTION_PACKAGE_REMOVED)
+                    || action.equals(Intent.ACTION_PACKAGE_CHANGED)) {
+                if (mPackageAdapter != null) {
+                    mPackageAdapter.reloadApplications();
+                }
+            }
+        }
+    };
+
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -354,17 +383,34 @@ public class AppCircleSidebar extends FrameLayout implements PackageAdapter.OnCi
                 showAppContainer(false);
             } else if (action.equals(Intent.ACTION_SCREEN_OFF)) {
                 showAppContainer(false);
+            } else if (action.equals(Intent.ACTION_ACTIVITY_LAUNCH_DETECTOR)) {
+                String packageName = intent.getStringExtra("packagename");
+                if (!mAppRunning.contains(packageName)) {
+                    mAppRunning.add(packageName);
+                }
+            } else if (action.equals(Intent.ACTION_ACTIVITY_END_DETECTOR)) {
+                String packageName = intent.getStringExtra("packagename");
+                if (!mAppRunning.isEmpty() && mAppRunning.contains(packageName)) {
+                    mAppRunning.remove(packageName);
+                } else if (!mAppOpening.isEmpty() && mAppOpening.contains(packageName)) {
+                    mAppRunning.remove(packageName);
+                }
             }
         }
     };
 
     private void launchApplication(String packageName, String className) {
+        if (!mAppOpening.contains(packageName)) {
+            mAppOpening.add(packageName);
+        }
         updateAutoHideTimer(500);
         ComponentName cn = new ComponentName(packageName, className);
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        Intent intent = Intent.makeMainActivity(cn);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setComponent(cn);
+        if (mFloatingWindow) {
+            intent.addFlags(Intent.FLAG_FLOATING_WINDOW);
+            mFloatingWindow = false;
+        }
         mContext.startActivity(intent);
     }
 
@@ -384,8 +430,6 @@ public class AppCircleSidebar extends FrameLayout implements PackageAdapter.OnCi
             updateAutoHideTimer(AUTO_HIDE_DELAY);
             mFloatingWindow = false;
         }
-        intent.setComponent(cn);
-        mContext.startActivity(intent);
     }
 
     private void killApp(String packageName) {
@@ -395,13 +439,13 @@ public class AppCircleSidebar extends FrameLayout implements PackageAdapter.OnCi
     }
 
     public void onItemCentered(View v) {
-        updateAutoHideTimer(AUTO_HIDE_DELAY);
         if (v != null) {
             final int position = (Integer) v.getTag(R.id.key_position);
             final ResolveInfo info = (ResolveInfo) mPackageAdapter.getItem(position);
             if (info != null) {
                 String packageName = info.activityInfo.packageName;
                 if (!mAppRunning.isEmpty() && mAppRunning.contains(packageName)) {
+                    mFloatingWindow = true;
                     launchApplicationFromHistory(info.activityInfo.packageName, info.activityInfo.name);
                 }
             }
@@ -445,6 +489,9 @@ public class AppCircleSidebar extends FrameLayout implements PackageAdapter.OnCi
                    popup.getMenu());
             popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 public boolean onMenuItemClick(MenuItem item) {
+                    if (item.getItemId() == R.id.sidebar_float_item) {
+                        mFloatingWindow = true;
+                        launchApplication(info.activityInfo.packageName, info.activityInfo.name);
                     } else if (item.getItemId() == R.id.sidebar_inspect_item) {
                         startApplicationDetailsActivity(info.activityInfo.packageName);
                     } else if (item.getItemId() == R.id.sidebar_stop_item) {

@@ -5305,10 +5305,8 @@ public class Activity extends ContextThemeWrapper
         mWindowManager = mWindow.getWindowManager();
         mCurrentConfig = config;
 
-        int mHaloEnabled = (Settings.System.getInt(getContentResolver(), Settings.System.HALO_ENABLED, 0));
-
-        if ((intent.getFlags() & Intent.FLAG_ACTIVITY_SPLIT_VIEW) != 0 && mHaloEnabled != 1) {
-            final IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
+        if (((intent.getFlags() & Intent.FLAG_ACTIVITY_SPLIT_VIEW) != 0)
+            && !mWindow.mIsFloatingWindow) {
             updateSplitViewMetrics(true);
         }		
     }
@@ -5506,7 +5504,9 @@ public class Activity extends ContextThemeWrapper
     
     final void performRestart() {
         mFragments.noteStateNotSaved();
-		updateSplitViewMetrics(false);
+        if (!mWindow.mIsFloatingWindow) {
+            updateSplitViewMetrics(false);
+        }
 
         if (mStopped) {
             mStopped = false;
