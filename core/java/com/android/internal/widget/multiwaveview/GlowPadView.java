@@ -355,6 +355,7 @@ public class GlowPadView extends View {
         mArcRect = new RectF(mHandleDrawable.getPositionX() - mHandleDrawable.getWidth()/2,
                                  mHandleDrawable.getPositionY() - mHandleDrawable.getHeight()/2,
                                  mHandleDrawable.getPositionX() + mHandleDrawable.getWidth()/2,
+                                 mHandleDrawable.getPositionY() + mHandleDrawable.getHeight()/2);
 
         mPaintText = new Paint();
         mPaintText.setAntiAlias(true);
