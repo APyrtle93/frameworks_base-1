@@ -1813,13 +1813,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         mWindowManager.addView(mGestureAnywhereView, getGestureAnywhereViewLayoutParams(Gravity.LEFT));
         mGestureAnywhereView.setStatusBar(this);
     }
-
-    @ChaosLab(name="GestureAnywhere", classification=Classification.NEW_METHOD)
-    protected WindowManager.LayoutParams getGestureAnywhereViewLayoutParams(int gravity) {
-    protected void addSidebarView() {
-        mAppSidebar = (AppSidebar)View.inflate(mContext, R.layout.app_sidebar, null);
-        mWindowManager.addView(mAppSidebar, getAppSidebarLayoutParams(mSidebarPosition));
-    }
     
     @ChaosLab(name="GestureAnywhere", classification=Classification.NEW_METHOD)
     protected void removeGestureAnywhereView() {
