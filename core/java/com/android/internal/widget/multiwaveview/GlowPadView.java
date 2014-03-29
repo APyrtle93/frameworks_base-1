@@ -1,18 +1,18 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright (C) 2012 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package com.android.internal.widget.multiwaveview;
 
@@ -30,12 +30,9 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.GradientDrawable;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Path;
@@ -61,8 +58,8 @@ import java.lang.Math;
 import java.util.ArrayList;
 
 /**
- * A re-usable widget containing a center, outer ring and wave animation.
- */
+* A re-usable widget containing a center, outer ring and wave animation.
+*/
 public class GlowPadView extends View {
     private static final String TAG = "GlowPadView";
     private static final boolean DEBUG = false;
@@ -77,36 +74,36 @@ public class GlowPadView extends View {
 
     //Lockscreen targets
     /**
-     * @hide
-     */
+* @hide
+*/
     public final static String ICON_RESOURCE = "icon_resource";
 
     /**
-     * @hide
-     */
+* @hide
+*/
     public final static String ICON_PACKAGE = "icon_package";
 
     /**
-     * @hide
-     */
+* @hide
+*/
     public final static String ICON_FILE = "icon_file";
 
     /**
-     * Number of customizable lockscreen targets for tablets
-     * @hide
-     */
+* Number of customizable lockscreen targets for tablets
+* @hide
+*/
     public final static int MAX_TABLET_TARGETS = 7;
 
     /**
-     * Number of customizable lockscreen targets for phones
-     * @hide
-     */
+* Number of customizable lockscreen targets for phones
+* @hide
+*/
     public final static int MAX_PHONE_TARGETS = 4;
 
     /**
-     * Empty target used to reference unused lockscreen targets
-     * @hide
-     */
+* Empty target used to reference unused lockscreen targets
+* @hide
+*/
     public final static String EMPTY_TARGET = "empty";
 
     // Animation properties.
@@ -151,7 +148,6 @@ public class GlowPadView extends View {
     private ArrayList<String> mDirectionDescriptions;
     private Drawable mPointDrawable;
     private Drawable mPadDrawable;
-    private GradientDrawable mRingDrawable;
     private OnTriggerListener mOnTriggerListener;
     private TargetDrawable mHandleDrawable;
     private TargetDrawable mOuterRing;
@@ -186,7 +182,7 @@ public class GlowPadView extends View {
     private RectF mArcRect;
     private float mArcAngle = 0f;
     private ArrayList<TargetDrawable> mNewTargetDrawables;
-	
+
     private class AnimationBundle extends ArrayList<Tweener> {
         private static final long serialVersionUID = 0xA84D78726F127468L;
         private boolean mSuspended;
@@ -296,8 +292,6 @@ public class GlowPadView extends View {
         mPadDrawable = a.getDrawable(R.styleable.GlowPadView_handleDrawable);
         mHandleDrawable = new TargetDrawable(res, handle != null ? handle.resourceId : 0);
         mHandleDrawable.setState(TargetDrawable.STATE_INACTIVE);
-        mRingDrawable = (GradientDrawable) a.getDrawable(
-                R.styleable.GlowPadView_outerRingDrawable).mutate();
         mOuterRing = new TargetDrawable(res,
                 getResourceId(a, R.styleable.GlowPadView_outerRingDrawable));
 
@@ -409,16 +403,16 @@ public class GlowPadView extends View {
     }
 
     /**
-     * This gets the suggested width accounting for the ring's scale factor.
-     */
+* This gets the suggested width accounting for the ring's scale factor.
+*/
     protected int getScaledSuggestedMinimumWidth() {
         return (int) (mRingScaleFactor * Math.max(mOuterRing.getWidth(), 2 * mOuterRadius)
                 + mMaxTargetWidth);
     }
 
     /**
-     * This gets the suggested height accounting for the ring's scale factor.
-     */
+* This gets the suggested height accounting for the ring's scale factor.
+*/
     protected int getScaledSuggestedMinimumHeight() {
         return (int) (mRingScaleFactor * Math.max(mOuterRing.getHeight(), 2 * mOuterRadius)
                 + mMaxTargetHeight);
@@ -488,7 +482,7 @@ public class GlowPadView extends View {
         }
     }
 
-    public void setColoredIcons(int lockColor, int dotColor, int ringColor, Bitmap custom) {
+    public void setColoredIcons(int lockColor, int dotColor, Bitmap custom) {
         if (custom != null) {
             Drawable handleDrawable = ImageHelper.resize(mContext,
                 new BitmapDrawable(mContext.getResources(),
@@ -513,12 +507,6 @@ public class GlowPadView extends View {
             if (mPointDrawable != null) {
                 mPointDrawable.setColorFilter(null);
             }
-        }
-
-        if (ringColor != -2 && mRingDrawable != null) {
-            mRingDrawable.setStroke(2, ringColor);
-            mRingDrawable.invalidateSelf();
-            setRingDrawable(mRingDrawable);
         }
     }
     private void showGlow(int duration, int delay, float finalAlpha,
@@ -560,9 +548,9 @@ public class GlowPadView extends View {
     }
 
     /**
-     * Dispatches a trigger event to listener. Ignored if a listener is not set.
-     * @param whichTarget the target that was triggered.
-     */
+* Dispatches a trigger event to listener. Ignored if a listener is not set.
+* @param whichTarget the target that was triggered.
+*/
     private void dispatchTriggerEvent(int whichTarget) {
         vibrate();
         if (mOnTriggerListener != null) {
@@ -578,14 +566,14 @@ public class GlowPadView extends View {
 
     private void doFinish() {
         final int activeTarget = mActiveTarget;
-        final boolean targetHit =  activeTarget != -1;
+        final boolean targetHit = activeTarget != -1;
 
         if (targetHit) {
             if (DEBUG) Log.v(TAG, "Finish with target hit = " + targetHit);
 
             highlightSelected(activeTarget);
 
-            // Inform listener of any active targets.  Typically only one will be active.
+            // Inform listener of any active targets. Typically only one will be active.
             hideGlow(RETURN_TO_HOME_DURATION, RETURN_TO_HOME_DELAY, 0.0f, mResetListener);
             dispatchTriggerEvent(activeTarget);
             if (!mAlwaysTrackFinger) {
@@ -764,10 +752,10 @@ public class GlowPadView extends View {
     }
 
     /**
-     * Loads an array of drawables from the given resourceId.
-     *
-     * @param resourceId
-     */
+* Loads an array of drawables from the given resourceId.
+*
+* @param resourceId
+*/
     public void setTargetResources(int resourceId) {
         if (mAnimatingTargets) {
             // postpone this change until we return to the initial state
@@ -799,10 +787,10 @@ public class GlowPadView extends View {
     }
 
     /**
-     * Sets the resource id specifying the target descriptions for accessibility.
-     *
-     * @param resourceId The resource id.
-     */
+* Sets the resource id specifying the target descriptions for accessibility.
+*
+* @param resourceId The resource id.
+*/
     public void setTargetDescriptionsResourceId(int resourceId) {
         mTargetDescriptionsResourceId = resourceId;
         if (mTargetDescriptions != null) {
@@ -811,30 +799,30 @@ public class GlowPadView extends View {
     }
 
     /**
-     * Sets the target descriptions for accessibility.
-     *
-     * @param targetDescriptions The target descriptions list.
-     * @hide
-     */
+* Sets the target descriptions for accessibility.
+*
+* @param targetDescriptions The target descriptions list.
+* @hide
+*/
     public void setTargetDescriptions(ArrayList<String> targetDescriptions) {
         mTargetDescriptions = targetDescriptions;
     }
 
 
     /**
-     * Gets the resource id specifying the target descriptions for accessibility.
-     *
-     * @return The resource id.
-     */
+* Gets the resource id specifying the target descriptions for accessibility.
+*
+* @return The resource id.
+*/
     public int getTargetDescriptionsResourceId() {
         return mTargetDescriptionsResourceId;
     }
 
     /**
-     * Sets the resource id specifying the target direction descriptions for accessibility.
-     *
-     * @param resourceId The resource id.
-     */
+* Sets the resource id specifying the target direction descriptions for accessibility.
+*
+* @param resourceId The resource id.
+*/
     public void setDirectionDescriptionsResourceId(int resourceId) {
         mDirectionDescriptionsResourceId = resourceId;
         if (mDirectionDescriptions != null) {
@@ -843,29 +831,29 @@ public class GlowPadView extends View {
     }
 
     /**
-     * Sets the target direction descriptions for accessibility.
-     *
-     * @param targetDescriptions The target descriptions list.
-     * @hide
-     */
+* Sets the target direction descriptions for accessibility.
+*
+* @param targetDescriptions The target descriptions list.
+* @hide
+*/
     public void setDirectionDescriptions(ArrayList<String> directionDescriptions) {
         mDirectionDescriptions = directionDescriptions;
     }
 
     /**
-     * Gets the resource id specifying the target direction descriptions.
-     *
-     * @return The resource id.
-     */
+* Gets the resource id specifying the target direction descriptions.
+*
+* @return The resource id.
+*/
     public int getDirectionDescriptionsResourceId() {
         return mDirectionDescriptionsResourceId;
     }
 
     /**
-     * Enable or disable vibrate on touch.
-     *
-     * @param enabled
-     */
+* Enable or disable vibrate on touch.
+*
+* @param enabled
+*/
     public void setVibrateEnabled(boolean enabled) {
         if (enabled && mVibrator == null) {
             mVibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
@@ -875,9 +863,9 @@ public class GlowPadView extends View {
     }
 
     /**
-     * Starts wave animation.
-     *
-     */
+* Starts wave animation.
+*
+*/
     public void ping() {
         if (mFeedbackCount > 0) {
             boolean doWaveAnimation = true;
@@ -922,11 +910,11 @@ public class GlowPadView extends View {
     }
 
     /**
-     * Resets the widget to default state and cancels all animation. If animate is 'true', will
-     * animate objects into place. Otherwise, objects will snap back to place.
-     *
-     * @param animate
-     */
+* Resets the widget to default state and cancels all animation. If animate is 'true', will
+* animate objects into place. Otherwise, objects will snap back to place.
+*
+* @param animate
+*/
     public void reset(boolean animate) {
         mGlowAnimations.stop();
         mTargetAnimations.stop();
@@ -1042,7 +1030,7 @@ public class GlowPadView extends View {
         int actionIndex = event.findPointerIndex(mPointerId);
 
         if (actionIndex == -1) {
-            return;  // no data for this pointer
+            return; // no data for this pointer
         }
 
         for (int k = 0; k < historySize + 1; k++) {
@@ -1159,9 +1147,9 @@ public class GlowPadView extends View {
     }
 
     /**
-     * Sets the current grabbed state, and dispatches a grabbed state change
-     * event to our listener.
-     */
+* Sets the current grabbed state, and dispatches a grabbed state change
+* event to our listener.
+*/
     private void setGrabbedState(int newState) {
         if (newState != mGrabbedState) {
             if (newState != OnTriggerListener.NO_HANDLE) {
@@ -1236,9 +1224,9 @@ public class GlowPadView extends View {
     }
 
     /**
-     * Given the desired width and height of the ring and the allocated width and height, compute
-     * how much we need to scale the ring.
-     */
+* Given the desired width and height of the ring and the allocated width and height, compute
+* how much we need to scale the ring.
+*/
     private float computeScaleFactor(int desiredWidth, int desiredHeight,
             int actualWidth, int actualHeight) {
 
@@ -1407,7 +1395,6 @@ public class GlowPadView extends View {
                     mHandleDrawable.getPositionY() + mHandleDrawable.getHeight()/3);
 
             canvas.drawArc(mArcRect, -90, mArcAngle, false, mArcPaint);
-			
         }
         if (!TextUtils.isEmpty(mHandleText) && mPaintText.getAlpha() != 0) {
             float x = mHandleDrawable.getPositionX();
@@ -1536,10 +1523,10 @@ public class GlowPadView extends View {
     }
 
     /**
-     * Gets the position of a target in the array that matches the given resource.
-     * @param resourceId
-     * @return the index or -1 if not found
-     */
+* Gets the position of a target in the array that matches the given resource.
+* @param resourceId
+* @return the index or -1 if not found
+*/
     public int getTargetPosition(int resourceId) {
         for (int i = 0; i < mTargetDrawables.size(); i++) {
             final TargetDrawable target = mTargetDrawables.get(i);
@@ -1575,13 +1562,13 @@ public class GlowPadView extends View {
     }
 
     /**
-     * Searches the given package for a resource to use to replace the Drawable on the
-     * target with the given resource id
-     * @param component of the .apk that contains the resource
-     * @param name of the metadata in the .apk
-     * @param existingResId the resource id of the target to search for
-     * @return true if found in the given package and replaced at least one target Drawables
-     */
+* Searches the given package for a resource to use to replace the Drawable on the
+* target with the given resource id
+* @param component of the .apk that contains the resource
+* @param name of the metadata in the .apk
+* @param existingResId the resource id of the target to search for
+* @return true if found in the given package and replaced at least one target Drawables
+*/
     public boolean replaceTargetDrawablesIfPresent(ComponentName component, String name,
                 int existingResId) {
         if (existingResId == 0) return false;
@@ -1615,11 +1602,6 @@ public class GlowPadView extends View {
         return replaced;
     }
 
-    public void setArc(float angle, int color) {
-        mArcAngle = angle;
-        mArcPaint.setColor(color);
-    }	
-
     public void setHandleDrawable(Drawable handle) {
         Resources res = mContext.getResources();
         if (handle != null) {
@@ -1628,15 +1610,5 @@ public class GlowPadView extends View {
             mHandleDrawable = new TargetDrawable(res, 0);
         }
         mHandleDrawable.setState(TargetDrawable.STATE_INACTIVE);
-    }
-
-    private void setRingDrawable(Drawable ring) {
-        Resources res = mContext.getResources();
-        if (ring != null) {
-            mOuterRing = new TargetDrawable(res, ring);
-        } else {
-            mOuterRing = new TargetDrawable(res, 0);
-        }
-        mOuterRing.setState(TargetDrawable.STATE_INACTIVE);
     }
 }
