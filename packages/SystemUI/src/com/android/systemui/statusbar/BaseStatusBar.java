@@ -95,13 +95,9 @@ import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.statusbar.StatusBarIconList;
 import com.android.systemui.statusbar.phone.Ticker;
 import com.android.internal.widget.SizeAdaptiveLayout;
-<<<<<<< HEAD
 import com.android.internal.util.slim.ButtonConfig;
 import com.android.internal.util.slim.DeviceUtils;
-=======
-import com.android.internal.util.ose.DeviceUtils;
 import com.android.systemui.chaos.lab.gestureanywhere.GestureAnywhereView;
->>>>>>> 88209e0... Gesture Anywhere: Add gesture anywhere feature into the ChaOS Lab [1/2]
 import com.android.systemui.R;
 import com.android.systemui.SearchPanelView;
 import com.android.systemui.RecentsComponent;
