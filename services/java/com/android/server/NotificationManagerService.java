@@ -1096,34 +1096,6 @@ public class NotificationManagerService extends INotificationManager.Stub
         return list.toArray(result);
     }
 
-    /**
-* Allow an INotificationListener to request the list of outstanding notifications seen by
-* the current user. Useful when starting up, after which point the listener callbacks should
-* be used.
-*
-* @param token The binder for the listener, to check that the caller is allowed
-*
-* @hide
-*/
-    public StatusBarNotification[] getActiveNotificationsFromSystemListener(INotificationListener token) {
-        final int permission = mContext.checkCallingPermission(
-                android.Manifest.permission.SYSTEM_NOTIFICATION_LISTENER);
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException("Disallowed call");
-        }
-
-        StatusBarNotification[] result = new StatusBarNotification[0];
-        ArrayList<StatusBarNotification> list = new ArrayList<StatusBarNotification>();
-        synchronized (mNotificationList) {
-            final int N = mNotificationList.size();
-            for (int i=0; i<N; i++) {
-                StatusBarNotification sbn = mNotificationList.get(i).sbn;
-                list.add(sbn);
-            }
-        }
-        return list.toArray(result);
-    }
-
     // -- end of listener APIs --
 
     public static final class NotificationRecord
