@@ -38,5 +38,5 @@
     <dimen name="folder_height">480dp</dimen>
     <dimen name="setup_sidebar_width">90dp</dimen>
 
-    <dimen name="app_sidebar_trigger_width">10dip</dimen>
+    <dimen name="app_sidebar_trigger_width">15dip</dimen>
 </resources>
