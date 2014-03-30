@@ -145,6 +145,7 @@
   <java-symbol type="anim" name="recent_screen_enter_left" />
   <java-symbol type="anim" name="recent_screen_fade_out" />
 
+<<<<<<< HEAD
   <!-- Active display -->
   <java-symbol type="dimen" name="system_bar_height" />
   <java-symbol type="dimen" name="kg_widget_pager_horizontal_padding" />
@@ -165,4 +166,6 @@
   <java-symbol type="string" name="global_action_onthego" />
   <java-symbol type="drawable" name="ic_lock_onthego" />
 
+=======
+>>>>>>> parent of 38fd8f6... Active display [squashed] (1/2)
 </resources>

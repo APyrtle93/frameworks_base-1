@@ -122,6 +122,7 @@
     <string name="permdesc_recordScreen">Allows the app to
         record the users screen.</string>
 
+<<<<<<< HEAD
     <!-- Title of an application permission that lets an application view/edit revoked permissions. -->
     <string name="permlab_revokePermissions">Allows view and edit of revoked permissions. Not for use by normal applications.</string>
     <!-- Description of an application permission that lets lets an application view/edit revoked permissions. -->
@@ -135,4 +136,6 @@
     <!-- label for item that takes On-The-Go in the phone options dialog -->
     <string name="global_action_onthego">On-The-Go Mode</string>
 
+=======
+>>>>>>> parent of 38fd8f6... Active display [squashed] (1/2)
 </resources>

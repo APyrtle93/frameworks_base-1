@@ -807,7 +807,7 @@ public class NotificationManagerService extends INotificationManager.Stub
             final int oldUser = info.userid;
             if (!info.isSystem) {
                 Slog.v(TAG, "disabling notification listener for user " + oldUser + ": " + component);
-                if (!component.getPackageName().equals("HaloComponent")) unregisterListenerService(component, info.userid);
+                unregisterListenerService(component, info.userid);
             }
         }
 
@@ -832,7 +832,7 @@ public class NotificationManagerService extends INotificationManager.Stub
         final int permission = mContext.checkCallingPermission(
                 android.Manifest.permission.SYSTEM_NOTIFICATION_LISTENER);
         if (permission == PackageManager.PERMISSION_DENIED)
-            if (!component.getPackageName().equals("HaloComponent")) checkCallerIsSystem();
+            checkCallerIsSystem();
 
         synchronized (mNotificationList) {
             try {
@@ -1059,14 +1059,14 @@ public class NotificationManagerService extends INotificationManager.Stub
     }
 
     /**
-     * Allow an INotificationListener to simulate clearing (dismissing) a single notification.
-     *
-     * {@see com.android.server.StatusBarManagerService.NotificationCallbacks#onNotificationClear}
-     *
-     * @param token The binder for the listener, to check that the caller is allowed
-     *
-     * @hide
-     */
+* Allow an INotificationListener to simulate clearing (dismissing) a single notification.
+*
+* {@see com.android.server.StatusBarManagerService.NotificationCallbacks#onNotificationClear}
+*
+* @param token The binder for the listener, to check that the caller is allowed
+*
+* @hide
+*/
     public void cancelNotificationFromSystemListener(INotificationListener token, String pkg, String tag, int id) {
         final int permission = mContext.checkCallingPermission(
                 android.Manifest.permission.SYSTEM_NOTIFICATION_LISTENER);
@@ -1086,12 +1086,12 @@ public class NotificationManagerService extends INotificationManager.Stub
     }
 
     /**
-     * Allow an INotificationListener to request the list of outstanding notifications seen by
-     * the current user. Useful when starting up, after which point the listener callbacks should
-     * be used.
-     *
-     * @param token The binder for the listener, to check that the caller is allowed
-     */
+* Allow an INotificationListener to request the list of outstanding notifications seen by
+* the current user. Useful when starting up, after which point the listener callbacks should
+* be used.
+*
+* @param token The binder for the listener, to check that the caller is allowed
+*/
     public StatusBarNotification[] getActiveNotificationsFromListener(INotificationListener token) {
         NotificationListenerInfo info = checkListenerToken(token);
 
@@ -1110,14 +1110,14 @@ public class NotificationManagerService extends INotificationManager.Stub
     }
 
     /**
-     * Allow an INotificationListener to request the list of outstanding notifications seen by
-     * the current user. Useful when starting up, after which point the listener callbacks should
-     * be used.
-     *
-     * @param token The binder for the listener, to check that the caller is allowed
-     *
-     * @hide
-     */
+* Allow an INotificationListener to request the list of outstanding notifications seen by
+* the current user. Useful when starting up, after which point the listener callbacks should
+* be used.
+*
+* @param token The binder for the listener, to check that the caller is allowed
+*
+* @hide
+*/
     public StatusBarNotification[] getActiveNotificationsFromSystemListener(INotificationListener token) {
         final int permission = mContext.checkCallingPermission(
                 android.Manifest.permission.SYSTEM_NOTIFICATION_LISTENER);
