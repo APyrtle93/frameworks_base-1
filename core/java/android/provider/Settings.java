@@ -2668,12 +2668,6 @@ public final class Settings {
         public static final String WHITELIST_APP_CIRCLE_BAR = "whitelist_app_circle_bar";
 
         /**
-         * Stores values for custom lockscreen targets
-         * @hide
-         */
-        public static final String LOCKSCREEN_TARGETS = "lockscreen_targets";
-
-        /**
          * Whether phone lockscreen uses 5 or 8 targets
          * @hide
          */
