@@ -1022,33 +1022,6 @@ public class NotificationManagerService extends INotificationManager.Stub
     }
 
     /**
-     * Allow an INotificationListener to simulate clearing (dismissing) a single notification.
-     *
-     * {@see com.android.server.StatusBarManagerService.NotificationCallbacks#onNotificationClear}
-     *
-     * @param token The binder for the listener, to check that the caller is allowed
-     *
-     * @hide
-     */
-    public void cancelNotificationFromSystemListener(INotificationListener token, String pkg, String tag, int id) {
-        final int permission = mContext.checkCallingPermission(
-                android.Manifest.permission.SYSTEM_NOTIFICATION_LISTENER);
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException("Disallowed call");
-        }
-
-        long identity = Binder.clearCallingIdentity();
-        try {
-            cancelNotification(pkg, tag, id, 0,
-                    Notification.FLAG_ONGOING_EVENT | Notification.FLAG_FOREGROUND_SERVICE,
-                    true,
-                    UserHandle.USER_ALL);
-        } finally {
-            Binder.restoreCallingIdentity(identity);
-        }
-    }
-
-    /**
 	* Allow an INotificationListener to simulate clearing (dismissing) a single notification.
 	*
 	* {@see com.android.server.StatusBarManagerService.NotificationCallbacks#onNotificationClear}
