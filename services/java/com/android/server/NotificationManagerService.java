@@ -1022,12 +1022,29 @@ public class NotificationManagerService extends INotificationManager.Stub
     }
 
     /**
-	* Allow an INotificationListener to simulate clearing (dismissing) a single notification.
-	*
-	* {@see com.android.server.StatusBarManagerService.NotificationCallbacks#onNotificationClear}
-	*
-	* @param token The binder for the listener, to check that the caller is allowed
-	*/
+* Allow an INotificationListener to simulate a "clear all" operation.
+*
+* {@see com.android.server.StatusBarManagerService.NotificationCallbacks#onClearAllNotifications}
+*
+* @param token The binder for the listener, to check that the caller is allowed
+*/
+    public void cancelAllNotificationsFromListener(INotificationListener token) {
+        NotificationListenerInfo info = checkListenerToken(token);
+        long identity = Binder.clearCallingIdentity();
+        try {
+            cancelAll(info.userid);
+        } finally {
+            Binder.restoreCallingIdentity(identity);
+        }
+    }
+
+    /**
+* Allow an INotificationListener to simulate clearing (dismissing) a single notification.
+*
+* {@see com.android.server.StatusBarManagerService.NotificationCallbacks#onNotificationClear}
+*
+* @param token The binder for the listener, to check that the caller is allowed
+*/
     public void cancelNotificationFromListener(INotificationListener token, String pkg, String tag, int id) {
         NotificationListenerInfo info = checkListenerToken(token);
         long identity = Binder.clearCallingIdentity();
@@ -1069,14 +1086,38 @@ public class NotificationManagerService extends INotificationManager.Stub
     }
 
     /**
-     * Allow an INotificationListener to request the list of outstanding notifications seen by
-     * the current user. Useful when starting up, after which point the listener callbacks should
-     * be used.
-     *
-     * @param token The binder for the listener, to check that the caller is allowed
-     *
-     * @hide
-     */
+* Allow an INotificationListener to request the list of outstanding notifications seen by
+* the current user. Useful when starting up, after which point the listener callbacks should
+* be used.
+*
+* @param token The binder for the listener, to check that the caller is allowed
+*/
+    public StatusBarNotification[] getActiveNotificationsFromListener(INotificationListener token) {
+        NotificationListenerInfo info = checkListenerToken(token);
+
+        StatusBarNotification[] result = new StatusBarNotification[0];
+        ArrayList<StatusBarNotification> list = new ArrayList<StatusBarNotification>();
+        synchronized (mNotificationList) {
+            final int N = mNotificationList.size();
+            for (int i=0; i<N; i++) {
+                StatusBarNotification sbn = mNotificationList.get(i).sbn;
+                if (info.enabledAndUserMatches(sbn)) {
+                    list.add(sbn);
+                }
+            }
+        }
+        return list.toArray(result);
+    }
+
+    /**
+* Allow an INotificationListener to request the list of outstanding notifications seen by
+* the current user. Useful when starting up, after which point the listener callbacks should
+* be used.
+*
+* @param token The binder for the listener, to check that the caller is allowed
+*
+* @hide
+*/
     public StatusBarNotification[] getActiveNotificationsFromSystemListener(INotificationListener token) {
         final int permission = mContext.checkCallingPermission(
                 android.Manifest.permission.SYSTEM_NOTIFICATION_LISTENER);
