@@ -1,18 +1,21 @@
 /*
- * Copyright (C) 2014 The OSE Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* <!--
+* Copyright (C) 2014 The NamelessROM Project
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+* -->
+*/
 
 package com.android.systemui.ose.onthego;
 
@@ -30,8 +33,10 @@ import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.TextureView;
@@ -40,37 +45,41 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.android.internal.util.ose.NamelessUtils;
+import com.android.internal.util.ose.constants.FlashLightConstants;
+import com.android.internal.util.ose.listeners.ShakeDetector;
 import com.android.systemui.R;
 
 import java.io.IOException;
 
-public class OnTheGoService extends Service {
+public class OnTheGoService extends Service implements ShakeDetector.Listener {
 
-    private static final String  TAG   = "OnTheGoService";
+    private static final String TAG = "OnTheGoService";
     private static final boolean DEBUG = false;
 
     private static final int ONTHEGO_NOTIFICATION_ID = 81333378;
 
-    public static final String ACTION_START          = "start";
-    public static final String ACTION_STOP           = "stop";
-    public static final String ACTION_TOGGLE_ALPHA   = "toggle_alpha";
-    public static final String ACTION_TOGGLE_CAMERA  = "toggle_camera";
+    public static final String ACTION_START = "start";
+    public static final String ACTION_STOP = "stop";
+    public static final String ACTION_TOGGLE_ALPHA = "toggle_alpha";
+    public static final String ACTION_TOGGLE_CAMERA = "toggle_camera";
     public static final String ACTION_TOGGLE_OPTIONS = "toggle_options";
-    public static final String EXTRA_ALPHA           = "extra_alpha";
+    public static final String EXTRA_ALPHA = "extra_alpha";
 
-    private static final int CAMERA_BACK  = 0;
+    private static final int CAMERA_BACK = 0;
     private static final int CAMERA_FRONT = 1;
 
     private static final int NOTIFICATION_STARTED = 0;
     private static final int NOTIFICATION_RESTART = 1;
-    private static final int NOTIFICATION_ERROR   = 2;
+    private static final int NOTIFICATION_ERROR = 2;
 
-    private final Handler mHandler       = new Handler();
-    private final Object  mRestartObject = new Object();
+    private final Handler mHandler = new Handler();
+    private final Object mRestartObject = new Object();
 
-    private FrameLayout         mOverlay;
-    private Camera              mCamera;
+    private FrameLayout mOverlay;
+    private Camera mCamera;
     private NotificationManager mNotificationManager;
+    private SensorManager mSensorManager;
+    private ShakeDetector mShakeDetector;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -80,24 +89,47 @@ public class OnTheGoService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceivers();
+        unregisterReceivers(false);
         resetViews();
     }
 
-    private void registerReceivers() {
+    private void registerReceivers(boolean isScreenOn) {
         final IntentFilter alphaFilter = new IntentFilter(ACTION_TOGGLE_ALPHA);
         registerReceiver(mAlphaReceiver, alphaFilter);
         final IntentFilter cameraFilter = new IntentFilter(ACTION_TOGGLE_CAMERA);
         registerReceiver(mCameraReceiver, cameraFilter);
+
+        if (!isScreenOn) {
+            final IntentFilter screenFilter = new IntentFilter();
+            screenFilter.addAction(Intent.ACTION_SCREEN_OFF);
+            screenFilter.addAction(Intent.ACTION_SCREEN_ON);
+            registerReceiver(mScreenReceiver, screenFilter);
+        }
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mShakeDetector = new ShakeDetector(this);
+        mShakeDetector.start(mSensorManager);
     }
 
-    private void unregisterReceivers() {
+    private void unregisterReceivers(boolean isScreenOff) {
         try {
             unregisterReceiver(mAlphaReceiver);
         } catch (Exception ignored) { }
         try {
             unregisterReceiver(mCameraReceiver);
         } catch (Exception ignored) { }
+
+        if (!isScreenOff) {
+            try {
+                unregisterReceiver(mScreenReceiver);
+            } catch (Exception ignored) { }
+        }
+
+        if (mShakeDetector != null) {
+            mShakeDetector.stop();
+            mShakeDetector = null;
+            mSensorManager = null;
+        }
     }
 
     private final BroadcastReceiver mAlphaReceiver = new BroadcastReceiver() {
@@ -120,6 +152,29 @@ public class OnTheGoService extends Service {
                     restartOnTheGo();
                 } else {
                     stopOnTheGo(true);
+                }
+            }
+        }
+    };
+
+    private final BroadcastReceiver mScreenReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent == null) {
+                return;
+            }
+
+            synchronized (mRestartObject) {
+                final String action = intent.getAction();
+                if (action != null && !action.isEmpty()) {
+                    logDebug("mScreenReceiver: " + action);
+                    if (Intent.ACTION_SCREEN_ON.equals(action)) {
+                        setupViews(true);
+                        registerReceivers(true);
+                    } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
+                        unregisterReceivers(true);
+                        resetViews();
+                    }
                 }
             }
         }
@@ -161,14 +216,14 @@ public class OnTheGoService extends Service {
         }
 
         resetViews();
-        registerReceivers();
+        registerReceivers(false);
         setupViews(false);
 
         createNotification(NOTIFICATION_STARTED);
     }
 
     private void stopOnTheGo(boolean shouldRestart) {
-        unregisterReceivers();
+        unregisterReceivers(false);
         resetViews();
 
         // Cancel notification
@@ -388,5 +443,25 @@ public class OnTheGoService extends Service {
             Log.e(TAG, msg);
         }
     }
-}
 
+    private final Object mShakeLock = new Object();
+    private final static int SHAKE_TIMEOUT = 1000;
+    private boolean mIsShakeLocked = false;
+
+    @Override
+    public void hearShake() {
+        synchronized (mShakeLock) {
+            if (!mIsShakeLocked) {
+                final Intent intent = new Intent(FlashLightConstants.ACTION_TOGGLE_STATE);
+                sendBroadcastAsUser(intent, UserHandle.CURRENT);
+                mIsShakeLocked = true;
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mIsShakeLocked = false;
+                    }
+                }, SHAKE_TIMEOUT);
+            }
+        }
+    }
+}
