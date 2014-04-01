@@ -3028,6 +3028,11 @@ public final class Settings {
         public static final String STATUSBAR_CLOCK_DATE_FORMAT = "statusbar_clock_date_format";
 
         /**
+         * @hide
+         */
+        public static final String NAVIGATION_BUTTON_GLOW_TIME = "navigation_button_glow_time";
+
+        /**		
          * Config for advanced power menu
          *
          * @hide
