@@ -3347,6 +3347,11 @@ public final class Settings {
          public static final String VOLUME_KEY_CURSOR_CONTROL = "volume_key_cursor_control";
 
         /**
+         * @hide
+         */
+        public static final String RECENTS_PANEL_COLOR = "recents_panel_color";
+
+        /**		
          * Override and forcefully disable the fullscreen keyboard
          * @hide
          */
