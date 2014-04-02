@@ -291,16 +291,6 @@ interface IWindowManager
      */
     void setTouchExplorationEnabled(boolean enabled);
 
-    /** SPLIT VIEW **/
-    boolean isTaskSplitView(int taskId);
-    void setTaskSplitView(int taskId, boolean split);
-    void setTaskChildSplit(int taskId, IBinder token, boolean split);
-    Rect getSplitViewRect(int taskId);
-    void notifyActivityTouched(IBinder token, boolean force);
-    void setSplitViewRect(int l, int t, int r, int b);
-
-    /** SPLIT VIEW END **/	
-
     /**
      * Get the current navigation bar state when expanded desktop is enabled.
      *

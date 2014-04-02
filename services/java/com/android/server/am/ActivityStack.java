@@ -1148,16 +1148,8 @@ final class ActivityStack {
                     // Aggregate current change flags.
                     configChanges |= r.configChangeFlags;
 
-                    boolean isSplitView = false;
-
-                    try {
-                        IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
-                        isSplitView = wm.isTaskSplitView(r.task.taskId);
-                    } catch (RemoteException e) {
-                        Slog.e(TAG, "Cannot get split view status", e);
-                    }
-
-                    if (r.fullscreen && !isSplitView) {
+                    if (r.fullscreen) {
+					
                         // At this point, nothing else needs to be shown
                         if (DEBUG_VISBILITY) Slog.v(TAG, "Fullscreen: at " + r);
                         behindFullscreen = true;
@@ -1263,8 +1255,7 @@ final class ActivityStack {
      * @return Returns true if something is being resumed, or false if
      * nothing happened.
      */
-    final boolean resumeTopActivityLocked(ActivityRecord prev) {
-        Log.e("XPLOD", "Resume Top Activity Locked " + prev);	
+    final boolean resumeTopActivityLocked(ActivityRecord prev) {	
         return resumeTopActivityLocked(prev, null);
     }
 
