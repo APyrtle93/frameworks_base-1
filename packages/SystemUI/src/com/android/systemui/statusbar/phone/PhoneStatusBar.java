@@ -284,7 +284,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private int mCarrierAndWifiViewHeight;
     private TextView mEmergencyCallLabel;
     private int mNotificationHeaderHeight;
-<<<<<<< HEAD
 
     // Notification reminder
     private View mReminderHeader;
@@ -301,8 +300,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private TextView mReminderTitle;
     private SharedPreferences mShared;
 
-=======
->>>>>>> 566cb16... Squashed commit of the theme engine support.
     private int mHideLabels;
     private boolean mCarrierAndWifiViewBlocked = false;
 
