@@ -836,6 +836,16 @@ class ServerThread {
                 }
             }
 
+         try {
+                Slog.i(TAG, "EdgeGesture service");
+                edgeGestureService = new EdgeGestureService(context, inputManager);
+                ServiceManager.addService("edgegestureservice", edgeGestureService);
+         } catch (Throwable e) {
+                Slog.e(TAG, "Failure starting AssetRedirectionManager Service", e);
+         }
+
+       }                
+
             try {
                 Slog.i(TAG, "AssetRedirectionManager Service");
                 ServiceManager.addService("assetredirection", new AssetRedirectionManagerService(context));
@@ -934,6 +944,14 @@ class ServerThread {
         } catch (Throwable e) {
             reportWtf("making Display Manager Service ready", e);
         }
+        
+        if (edgeGestureService != null) {
+            try {
+                edgeGestureService.systemReady();
+            } catch (Throwable e) {
+                reportWtf("making EdgeGesture service ready", e);
+            }
+        }        
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_APP_LAUNCH_FAILURE);
