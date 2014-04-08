@@ -304,8 +304,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private boolean mCarrierAndWifiViewBlocked = false;
 	
     private boolean mRecreating = false;	
-    private int mHideLabels;
-    private boolean mCarrierAndWifiViewBlocked = false;
 
     // position
     int[] mPositionTmp = new int[2];
@@ -357,8 +355,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     // last theme that was applied in order to detect theme change (as opposed
     // to some other configuration change).
     CustomTheme mCurrentTheme;
-
-    private boolean mRecreating = false;
 
     // status bar brightness control
     private boolean mBrightnessControl;
