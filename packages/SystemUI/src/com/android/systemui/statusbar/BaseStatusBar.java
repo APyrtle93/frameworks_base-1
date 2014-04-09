@@ -180,8 +180,6 @@ public abstract class BaseStatusBar extends SystemUI implements
 
     protected int mCurrentUserId = 0;
 
-    protected FrameLayout mStatusBarContainer;
-
     private RecentController cRecents;
 
     private RecentsComponent mRecents;
@@ -232,6 +230,7 @@ public abstract class BaseStatusBar extends SystemUI implements
     // Pie Control
     protected PieController mPieController;
     public NavigationBarOverlay mNavigationBarOverlay;
+    protected FrameLayout mStatusBarContainer;
 
     // UI-specific methods
 
