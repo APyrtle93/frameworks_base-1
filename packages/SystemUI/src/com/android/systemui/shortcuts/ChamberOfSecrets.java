@@ -33,6 +33,9 @@ public class ChamberOfSecrets extends Activity  {
     private static final int SECURE_LONG = 3;
     private static final int SYSTEM_FLOAT = 4;
     private static final int SECURE_FLOAT = 5;
+    private static final int GLOBAL_INT = 6;
+    private static final int GLOBAL_LONG = 7;
+    private static final int GLOBAL_FLOAT = 8;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
