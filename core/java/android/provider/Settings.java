@@ -1649,11 +1649,20 @@ public final class Settings {
         public static final String AIRPLANE_MODE_ON = Global.AIRPLANE_MODE_ON;
 
         /**
+         * 
+         * Whether the lockscreen should be completely disabled.
+         * @hide
+         */
+        public static final String LOCKSCREEN_DISABLED = "lockscreen.disabled";
+
+        /**         
+         * 
+         * 
          * @deprecated Use {@link android.provider.Settings.Global#RADIO_BLUETOOTH} instead
          */
         @Deprecated
         public static final String RADIO_BLUETOOTH = Global.RADIO_BLUETOOTH;
-
+        
         /**
          * @deprecated Use {@link android.provider.Settings.Global#RADIO_WIFI} instead
          */
