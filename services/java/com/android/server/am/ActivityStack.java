@@ -1149,17 +1149,15 @@ final class ActivityStack {
                     configChanges |= r.configChangeFlags;
 
                     boolean isSplitView = false;
-                    boolean isFloating = r.floatingWindow;
-                    if (!isFloating) {
-                        try {
-                            IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
-                            isSplitView = wm.isTaskSplitView(r.task.taskId);
-                        } catch (RemoteException e) {
-                            Slog.e(TAG, "Cannot get split view status", e);
-                        }
+
+                    try {
+                        IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
+                        isSplitView = wm.isTaskSplitView(r.task.taskId);
+                    } catch (RemoteException e) {
+                        Slog.e(TAG, "Cannot get split view status", e);
                     }
 
-                    if (r.fullscreen && (!isSplitView || !isFloating)) {
+                    if (r.fullscreen && !isSplitView) {
                         // At this point, nothing else needs to be shown
                         if (DEBUG_VISBILITY) Slog.v(TAG, "Fullscreen: at " + r);
                         behindFullscreen = true;
