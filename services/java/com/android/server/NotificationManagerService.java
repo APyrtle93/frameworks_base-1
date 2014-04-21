@@ -1734,7 +1734,6 @@ public class NotificationManagerService extends INotificationManager.Stub
         qhObserver.observe();
         mSettingsObserver = new SettingsObserver(mHandler);
         mSettingsObserver.observe();
-        ThemeUtils.registerThemeChangeReceiver(mContext, mThemeChangeReceiver);
 
         // spin up NotificationScorers
         String[] notificationScorerNames = resources.getStringArray(
@@ -2728,13 +2727,6 @@ public class NotificationManagerService extends INotificationManager.Stub
             }
         }
         return -1;
-    }
-
-    private Context getUiContext() {
-        if (mUiContext == null) {
-            mUiContext = ThemeUtils.createUiContext(mContext);
-        }
-        return mUiContext != null ? mUiContext : mContext;
     }
 
     private void updateNotificationPulse() {
