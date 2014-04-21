@@ -1148,11 +1148,6 @@ final class ActivityStack {
                     // Aggregate current change flags.
                     configChanges |= r.configChangeFlags;
 
-<<<<<<< HEAD
-=======
-		            int mHaloEnabled = (Settings.System.getInt(
-                            mContext.getContentResolver(), Settings.System.HALO_ENABLED, 0));
->>>>>>> c41a1c4... Cleanup and repair multi-window support
                     boolean isSplitView = false;
                     boolean isFloating = r.floatingWindow;
                     if (!isFloating) {
@@ -1164,20 +1159,7 @@ final class ActivityStack {
                         }
                     }
 
-<<<<<<< HEAD
                     if (r.fullscreen && (!isSplitView || !isFloating)) {
-=======
-		            if (mHaloEnabled != 1) {
-		                try {
-		                    IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
-		                    isSplitView = wm.isTaskSplitView(r.task.taskId);
-		                } catch (RemoteException e) {
-		                    Slog.e(TAG, "Cannot get split view status", e);
-		                }
-		            }
-
-                    if (r.fullscreen && !isSplitView) {
->>>>>>> c41a1c4... Cleanup and repair multi-window support
                         // At this point, nothing else needs to be shown
                         if (DEBUG_VISBILITY) Slog.v(TAG, "Fullscreen: at " + r);
                         behindFullscreen = true;

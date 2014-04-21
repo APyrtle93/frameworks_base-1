@@ -2588,10 +2588,9 @@ public class Activity extends ContextThemeWrapper
              }
         }
 
-            int mHaloEnabled = (Settings.System.getInt(
-                getContentResolver(), Settings.System.HALO_ENABLED, 0));
+        int mHaloEnabled = (Settings.System.getInt(getContentResolver(), Settings.System.HALO_ENABLED, 0));
 
-        if (mIsSplitView && mHaloEnabled != 1) {
+        if (mIsSplitView && ev.getAction() == MotionEvent.ACTION_DOWN) {
             IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
             try {
                 wm.notifyActivityTouched(mToken, false);
@@ -5633,11 +5632,8 @@ public class Activity extends ContextThemeWrapper
         mWindowManager = mWindow.getWindowManager();
         mCurrentConfig = config;
 
-            int mHaloEnabled = (Settings.System.getInt(
-                getContentResolver(), Settings.System.HALO_ENABLED, 0));
-
-        if ((intent.getFlags() & Intent.FLAG_ACTIVITY_SPLIT_VIEW) != 0 && mHaloEnabled != 1) {
-            final IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
+        if (((intent.getFlags() & Intent.FLAG_ACTIVITY_SPLIT_VIEW) != 0)
+            && !mWindow.mIsFloatingWindow) {
             updateSplitViewMetrics(true);
         }		
     }
@@ -5729,6 +5725,11 @@ public class Activity extends ContextThemeWrapper
     /** @hide */
     public final void setSplitViewRect(int l, int t, int r, int b) {
         final IWindowManager wm = (IWindowManager) WindowManagerGlobal.getWindowManagerService();
+        /*try {
+            wm.setSplitViewRect(l,t,r,b);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not update split view rect", e);
+        }*/
         updateSplitViewMetrics(false);
     }
 
@@ -5750,7 +5751,7 @@ public class Activity extends ContextThemeWrapper
             mIsSplitView = false;
 
             if (shouldReset) {
-                wm.getSplitViewRect(getTaskId(), true);
+                wm.getSplitViewRect(getTaskId());
             }
 
             // Check for split view settings
@@ -5758,7 +5759,7 @@ public class Activity extends ContextThemeWrapper
                 // This activity/task is tagged as being in split view
                 mIsSplitView = true;
 
-                wm.setTaskChildSplit(mToken, true);
+                wm.setTaskChildSplit(getTaskId(), mToken, true);
 
                 // Then, we apply it the position and size
                 mWindow.setGravity(Gravity.LEFT | Gravity.TOP);
@@ -5780,7 +5781,7 @@ public class Activity extends ContextThemeWrapper
                     Log.e(TAG, "Could not update split view rect", e);
                 }*/
 
-                Rect windowBounds = wm.getSplitViewRect(getTaskId(), false);
+                Rect windowBounds = wm.getSplitViewRect(getTaskId());
                 mWindow.setLayout(windowBounds.right - windowBounds.left,
                     windowBounds.bottom - windowBounds.top);
 
@@ -5791,10 +5792,6 @@ public class Activity extends ContextThemeWrapper
                 // Finally, we make the window non-modal to allow the second app to get input
                 mWindow.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
                 mWindow.addFlags(WindowManager.LayoutParams.FLAG_SPLIT_TOUCH);
-
-                // We notify that we are touched -- but really it's just so that this activity
-                // which just opened has the focus without the need to touch it
-                wm.notifyActivityTouched(mToken, true);
             } else if (mOriginalBounds != null) {
                 // Restore normal window bounds
                 Log.d(TAG, "Restore original bounds from split (TaskId=" + getTaskId() + ")");
@@ -5805,7 +5802,7 @@ public class Activity extends ContextThemeWrapper
                 mWindow.setLayout(mOriginalBounds.right - mOriginalBounds.left,
                     mOriginalBounds.bottom - mOriginalBounds.top);
 
-                wm.setTaskChildSplit(mToken, false);
+                wm.setTaskChildSplit(getTaskId(), mToken, false);
             }
         } catch (RemoteException e) {
             Log.e(TAG, "Could not perform split view actions on restart", e);
