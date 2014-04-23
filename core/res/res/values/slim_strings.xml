@@ -134,11 +134,5 @@
 
     <!-- label for item that takes On-The-Go in the phone options dialog -->
     <string name="global_action_onthego">On-The-Go Mode</string>
-	
-    <!-- Title shown in notification popup for launching notification in floating mode -->
-    <string name="status_bar_notification_floating_item_title">Floating mode</string>
-
-    <!-- Title shown in recents popup for showing app in floating mode -->
-    <string name="status_bar_recent_floating_item_title">Floating mode</string>
 
 </resources>
