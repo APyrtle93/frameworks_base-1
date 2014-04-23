@@ -348,9 +348,4 @@ interface IWindowManager
     Rect getAppFullscreenViewRect();
     Rect getFloatViewRect();
     void notifyFloatActivityTouched(IBinder token, boolean force);
-
-    /**
-     * @hide
-     */
-    void updateStatusBarNavBarHeight();
 }
