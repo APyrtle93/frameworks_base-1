@@ -75,11 +75,11 @@ public class PieSysInfo extends PieSliceContainer implements ValueAnimator.Anima
         mController = controller;
         mContext = context;
 
-        mClockPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mClockPaint.setAntiAlias(true);
         mClockPaint.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
 
-        mInfoPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mInfoPaint.setTypeface(Typeface.create("sans-serif-condensed", Typeface.NORMAL));
+        mInfoPaint.setAntiAlias(true);
+        mInfoPaint.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
     }
 
     private void setColor() {
@@ -101,7 +101,7 @@ public class PieSysInfo extends PieSliceContainer implements ValueAnimator.Anima
         // we don't even start to collect this data.
         mStaleData = true;
 
-        mClockText = mController.getSimpleTime();
+        mClockText = getTimeFormat().format(new Date());
 
         mClockPaint.setAlpha(0);
         mInfoPaint.setAlpha(0);
@@ -195,7 +195,7 @@ public class PieSysInfo extends PieSliceContainer implements ValueAnimator.Anima
             if (connectionInfo != null) {
                 final WifiSsid wifiSsid = connectionInfo.getWifiSsid();
                 if (wifiSsid != null) {
-                    ssid = "WiFi: " + wifiSsid.toString();
+                    ssid = wifiSsid.toString();
                 }
             }
         }
