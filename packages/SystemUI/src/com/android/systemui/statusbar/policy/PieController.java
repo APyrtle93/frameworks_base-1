@@ -18,6 +18,7 @@
 package com.android.systemui.statusbar.policy;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.StatusBarManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -49,7 +50,6 @@ import android.service.gesture.EdgeGestureManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.Slog;
 import android.view.HapticFeedbackConstants;
@@ -72,7 +72,6 @@ import com.android.internal.util.slim.ImageHelper;
 import com.android.internal.util.slim.SlimActions;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar;
-import com.android.systemui.statusbar.phone.NavigationBarOverlay;
 import com.android.systemui.statusbar.pie.PieItem;
 import com.android.systemui.statusbar.pie.PieView;
 import com.android.systemui.statusbar.pie.PieView.PieDrawable;
@@ -80,9 +79,7 @@ import com.android.systemui.statusbar.pie.PieView.PieSlice;
 import com.android.systemui.statusbar.pie.PieSliceContainer;
 import com.android.systemui.statusbar.pie.PieSysInfo;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
 * Controller class for the default pie control.
@@ -115,7 +112,6 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
     private boolean mIsDetaching = false;
 
     private BaseStatusBar mStatusBar;
-    private NavigationBarOverlay mNavigationBarOverlay;
     private Vibrator mVibrator;
     private IWindowManager mWm;
     private WindowManager mWindowManager;
@@ -225,9 +221,6 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PIE_MENU), false, this,
                     UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_IME_CONTROL), false, this,
-                    UserHandle.USER_ALL);
         }
 
         @Override
@@ -276,11 +269,8 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
         }
     };
 
-    public PieController(Context context, BaseStatusBar statusBar,
-            EdgeGestureManager pieManager, NavigationBarOverlay nbo) {
+    public PieController(Context context) {
         mContext = context;
-        mStatusBar = statusBar;
-        mNavigationBarOverlay = nbo;
 
         mVibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
         mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
@@ -291,7 +281,7 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
                     (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         }
 
-        mPieManager = pieManager;
+        mPieManager = EdgeGestureManager.getInstance();
         mPieManager.setEdgeGestureActivationListener(mPieActivationListener);
     }
 
@@ -336,9 +326,13 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
         mPieContainer = null;
     }
 
+    public void attachStatusBar(BaseStatusBar statusBar) {
+        mStatusBar = statusBar;
+    }
+
     private void setupContainer() {
         if (mPieContainer == null) {
-            mPieContainer = new PieView(mContext, mStatusBar, mNavigationBarOverlay);
+            mPieContainer = new PieView(mContext, mStatusBar.mNavigationBarOverlay);
             mPieContainer.setOnSnapListener(this);
             mPieContainer.setOnExitListener(this);
 
@@ -422,16 +416,9 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
             sensitivity = EdgeServiceConstants.SENSITIVITY_DEFAULT;
         }
 
-        int flags = mPieTriggerSlots & mPieTriggerMask;
-
-        if (Settings.System.getIntForUser(resolver,
-                Settings.System.PIE_IME_CONTROL, 1,
-                UserHandle.USER_CURRENT) == 1) {
-            flags |= EdgeServiceConstants.IME_CONTROL;
-        }
-
         mPieManager.updateEdgeGestureActivationListener(mPieActivationListener,
-                sensitivity<<EdgeServiceConstants.SENSITIVITY_SHIFT | flags);
+                sensitivity<<EdgeServiceConstants.SENSITIVITY_SHIFT
+                | mPieTriggerSlots & mPieTriggerMask);
     }
 
     private void setupNavigationItems() {
@@ -640,6 +627,12 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
                 | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                 | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 PixelFormat.TRANSLUCENT);
+        // Turn on hardware acceleration for high end gfx devices.
+        if (ActivityManager.isHighEndGfx()) {
+            lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
+            lp.privateFlags |=
+                    WindowManager.LayoutParams.PRIVATE_FLAG_FORCE_HARDWARE_ACCELERATED;
+        }
         // This title is for debugging only. See: dumpsys window
         lp.setTitle("PieControlPanel");
         lp.windowAnimations = android.R.style.Animation;
@@ -888,14 +881,6 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
             return mContext.getString(R.string.pie_battery_status_charging, mBatteryLevel);
         }
         return mContext.getString(R.string.pie_battery_status_discharging, mBatteryLevel);
-    }
-
-    public String getSimpleTime() {
-        SimpleDateFormat sdf = new SimpleDateFormat(
-                mContext.getString(is24Hours() ? R.string.pie_hour_format_24 :
-                R.string.pie_hour_format_12));
-        String amPm = sdf.format(new Date());
-        return amPm.toUpperCase();
     }
 
 }
