@@ -225,6 +225,9 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PIE_MENU), false, this,
                     UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.PIE_IME_CONTROL), false, this,
+                    UserHandle.USER_ALL);
         }
 
         @Override
@@ -273,7 +276,8 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
         }
     };
 
-    public PieController(Context context, BaseStatusBar statusBar, NavigationBarOverlay nbo) {
+    public PieController(Context context, BaseStatusBar statusBar,
+            EdgeGestureManager pieManager, NavigationBarOverlay nbo) {
         mContext = context;
         mStatusBar = statusBar;
         mNavigationBarOverlay = nbo;
@@ -287,7 +291,7 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
                     (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         }
 
-        mPieManager = EdgeGestureManager.getInstance();
+        mPieManager = pieManager;
         mPieManager.setEdgeGestureActivationListener(mPieActivationListener);
     }
 
@@ -418,9 +422,16 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
             sensitivity = EdgeServiceConstants.SENSITIVITY_DEFAULT;
         }
 
+        int flags = mPieTriggerSlots & mPieTriggerMask;
+
+        if (Settings.System.getIntForUser(resolver,
+                Settings.System.PIE_IME_CONTROL, 1,
+                UserHandle.USER_CURRENT) == 1) {
+            flags |= EdgeServiceConstants.IME_CONTROL;
+        }
+
         mPieManager.updateEdgeGestureActivationListener(mPieActivationListener,
-                sensitivity<<EdgeServiceConstants.SENSITIVITY_SHIFT
-                | mPieTriggerSlots & mPieTriggerMask);
+                sensitivity<<EdgeServiceConstants.SENSITIVITY_SHIFT | flags);
     }
 
     private void setupNavigationItems() {
@@ -877,6 +888,17 @@ public class PieController implements BaseStatusBar.NavigationBarCallback, PieVi
             return mContext.getString(R.string.pie_battery_status_charging, mBatteryLevel);
         }
         return mContext.getString(R.string.pie_battery_status_discharging, mBatteryLevel);
+    }
+
+    public String getSimpleDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat(
+                mContext.getString(R.string.pie_date_format));
+        String date = sdf.format(new Date());
+        return date.toUpperCase();
+    }
+
+    public boolean is24Hours() {
+        return DateFormat.is24HourFormat(mContext);
     }
 
     public String getSimpleTime() {
