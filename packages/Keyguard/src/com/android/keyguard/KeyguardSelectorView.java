@@ -351,7 +351,6 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                 }
             });
         }
->>>>>>> a597c20... Add double tap sleep feature to secure lockscreen
     }
 
     public void setCarrierArea(View carrierArea) {
