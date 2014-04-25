@@ -44,6 +44,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Slog;
 import android.util.TypedValue;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.Gravity;
@@ -93,8 +95,13 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
     private Drawable mBouncerFrame;
     private String[] mStoredTargets;
     private int mTargetOffset;
+
 	private int mTaps;
 	private float mBatteryLevel;
+
+    private boolean mIsScreenLarge;
+    private GestureDetector mDoubleTapGesture;
+    private int mTaps;
 
     OnTriggerListener mOnTriggerListener = new OnTriggerListener() {
 
@@ -322,7 +329,29 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
         mGlowTorch = Settings.System.getIntForUser(
                 mContext.getContentResolver(),
                 Settings.System.LOCKSCREEN_GLOWPAD_TORCH, 0,
-                UserHandle.USER_CURRENT) == 1;		
+
+                UserHandle.USER_CURRENT) == 1;
+
+        mDoubleTapGesture = new GestureDetector(mContext,
+                new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
+                if (pm != null) pm.goToSleep(e.getEventTime());
+                return true;
+            }
+        });
+
+        if (Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.DOUBLE_TAP_TO_SLEEP, 0) == 1) {
+            mGlowPadView.setOnTouchListener(new OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return mDoubleTapGesture.onTouchEvent(event);
+                }
+            });
+        }
+>>>>>>> a597c20... Add double tap sleep feature to secure lockscreen
     }
 
     public void setCarrierArea(View carrierArea) {
